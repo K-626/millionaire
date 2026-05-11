@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>オンライン大富豪 - GitHub版</title>
+    <style>
+        :root {
+            --bg-color: #1b5e20;
+            --card-white: #ffffff;
+            --suit-red: #d32f2f;
+            --suit-black: #212121;
+            --accent-color: #ffeb3b;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            margin: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+
+        header {
+            padding: 10px 20px;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #game-info {
+            text-align: center;
+            padding: 5px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .bind-badge {
+            background: #f44336;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 4px;
+            display: none;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        #debug-log {
+            font-size: 11px;
+            color: #ccc;
+            margin-top: 5px;
+        }
+
+        #game-field {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .field-label { font-size: 12px; margin-bottom: 10px; opacity: 0.7; }
+
+        #field-cards {
+            min-width: 200px;
+            min-height: 120px;
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        /* カードのデザイン */
+        .card {
+            width: 70px;
+            height: 100px;
+            background: var(--card-white);
+            border-radius: 8px;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 6px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+            color: black;
+        }
+
+        .card:not(:first-child) { margin-left: -30px; }
+        .card:hover { transform: translateY(-10px); z-index: 10; }
+        .card.selected { 
+            transform: translateY(-25px); 
+            box-shadow: 0 0 15px var(--accent-color);
+            border: 2px solid var(--accent-color);
+            z-index: 5;
+        }
+
+        .suit-red { color: var(--suit-red); }
+        .suit-black { color: var(--suit-black); }
+
+        .card-top { font-size: 15px; font-weight: bold; line-height: 1; }
+        .card-bottom { font-size: 15px; font-weight: bold; line-height: 1; transform: rotate(180deg); text-align: left; }
+        .card-center { text-align: center; font-size: 28px; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
+
+        #controls {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            background: rgba(0,0,0,0.3);
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        #play-btn { background: var(--accent-color); color: #000; }
+        #play-btn:disabled { background: #555; color: #888; cursor: not-allowed; }
+        #pass-btn { background: #eee; color: #333; }
+
+        #my-hand {
+            padding: 30px 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 140px;
+            background: rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div id="player-name">ID: ---</div>
+    <div id="turn-display">Firebaseに接続中...</div>
+</header>
+
+<div id="game-info">
+    <span id="bind-indicator" class="bind-badge">スート縛り中！</span>
+    <div id="debug-log">ログ準備中...</div>
+</div>
+
+<div id="game-field">
+    <div class="field-label">場に出ているカード</div>
+    <div id="field-cards"></div>
+</div>
+
+<div id="controls">
+    <button id="play-btn" disabled>カードを出す</button>
+    <button id="pass-btn" disabled>パス</button>
+</div>
+
+<div id="my-hand"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, onSnapshot, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const log = (msg) => {
+        console.log(msg);
+        document.getElementById('debug-log').innerText = msg;
+    };
+
+    // --- 1. Firebase Config (必ず自分のものに書き換えてください) ---
+    const firebaseConfig = {
+         apiKey: "AIzaSyCKXo6VpXv4iEb6zA4CfoJ1U2Bvm6ymEfg",
+         authDomain: "millionaire-b0b33.firebaseapp.com",
+         projectId: "millionaire-b0b33",
+         storageBucket: "millionaire-b0b33.firebasestorage.app",
+         messagingSenderId: "186941794367",
+         appId: "1:186941794367:web:472c345465f84652f6708a"
+    };
+
+    // --- 初期化 ---
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const gameRef = doc(db, "rooms", "game-room-1");
+
+    const myId = localStorage.getItem('daifugo_id') || "User_" + Math.floor(Math.random() * 1000);
+    localStorage.setItem('daifugo_id', myId);
+    document.getElementById('player-name').innerText = `ID: ${myId}`;
+
+    let myHandData = [
+        { id: 1, suit: '♠', number: 3 },
+        { id: 2, suit: '♥', number: 5 },
+        { id: 3, suit: '♦', number: 8 },
+        { id: 4, suit: '♣', number: 10 },
+        { id: 5, suit: '♠', number: 12 }
+    ];
+    let selectedIds = new Set();
+    let gameState = null;
+
+    // --- 描画ロジック ---
+    function render() {
+        if (!gameState) return;
+
+        const handEl = document.getElementById('my-hand');
+        handEl.innerHTML = '';
+        myHandData.sort((a,b) => a.number - b.number).forEach(card => {
+            const cardEl = createCardUI(card);
+            if (selectedIds.has(card.id)) cardEl.classList.add('selected');
+            cardEl.onclick = () => {
+                selectedIds.has(card.id) ? selectedIds.delete(card.id) : selectedIds.add(card.id);
+                render();
+            };
+            handEl.appendChild(cardEl);
+        });
+
+        const fieldEl = document.getElementById('field-cards');
+        fieldEl.innerHTML = '';
+        (gameState.fieldCards || []).forEach(c => fieldEl.appendChild(createCardUI(c, true)));
+
+        const playerOrder = gameState.playerOrder || [];
+        const turnIdx = gameState.turnIndex || 0;
+        const isMyTurn = playerOrder[turnIdx] === myId;
+        
+        document.getElementById('turn-display').innerText = isMyTurn ? "あなたの番です" : "待機中...";
+        document.getElementById('play-btn').disabled = !isMyTurn;
+        document.getElementById('pass-btn').disabled = !isMyTurn;
+        document.getElementById('bind-indicator').style.display = gameState.isBind ? 'inline' : 'none';
+    }
+
+    function createCardUI(card, isField = false) {
+        const el = document.createElement('div');
+        const isRed = (card.suit === '♥' || card.suit === '♦');
+        el.className = `card ${isRed ? 'suit-red' : 'suit-black'}`;
+        const disp = (n) => n==11?'J':n==12?'Q':n==13?'K':n==1?'A':n;
+        el.innerHTML = `<div class="card-top">${disp(card.number)}<br>${card.suit}</div>
+                        <div class="card-center">${card.suit}</div>
+                        <div class="card-bottom">${disp(card.number)}<br>${card.suit}</div>`;
+        return el;
+    }
+
+    // --- リアルタイム通信 ---
+    onSnapshot(gameRef, async (snap) => {
+        if (!snap.exists()) {
+            log("初期データ作成中...");
+            await setDoc(gameRef, { 
+                fieldCards: [], playerOrder: [myId], turnIndex: 0, isBind: false, passCount: 0 
+            });
+        } else {
+            const data = snap.data();
+            if (data && data.playerOrder) {
+                gameState = data;
+                if (!gameState.playerOrder.includes(myId) && gameState.playerOrder.length < 4) {
+                    await updateDoc(gameRef, { playerOrder: [...gameState.playerOrder, myId] });
+                }
+                log("データ更新完了");
+                render();
+            }
+        }
+    }, (err) => log("接続失敗: " + err.message));
+
+    // --- ボタン操作 ---
+    document.getElementById('play-btn').onclick = async () => {
+        const playedCards = myHandData.filter(c => selectedIds.has(c.id));
+        if (playedCards.length === 0) return;
+
+        const is8Giri = playedCards.some(c => c.number === 8);
+        let nextIsBind = gameState.isBind;
+        if (gameState.fieldCards.length > 0 && gameState.fieldCards[0].suit === playedCards[0].suit) {
+            nextIsBind = true;
+        }
+
+        const nextIndex = is8Giri ? gameState.turnIndex : (gameState.turnIndex + 1) % gameState.playerOrder.length;
+
+        await updateDoc(gameRef, {
+            fieldCards: is8Giri ? [] : playedCards,
+            isBind: is8Giri ? false : nextIsBind,
+            turnIndex: nextIndex,
+            passCount: 0
+        });
+
+        myHandData = myHandData.filter(c => !selectedIds.has(c.id));
+        selectedIds.clear();
+        render();
+    };
+
+    document.getElementById('pass-btn').onclick = async () => {
+        const nextCount = (gameState.passCount || 0) + 1;
+        const isFieldClear = nextCount >= (gameState.playerOrder.length - 1);
+        await updateDoc(gameRef, {
+            turnIndex: (gameState.turnIndex + 1) % gameState.playerOrder.length,
+            passCount: isFieldClear ? 0 : nextCount,
+            fieldCards: isFieldClear ? [] : gameState.fieldCards,
+            isBind: isFieldClear ? false : gameState.isBind
+        });
+        selectedIds.clear();
+        render();
+    };
+</script>
+</body>
+</html>
