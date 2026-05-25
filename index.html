@@ -664,7 +664,7 @@ import {
     buildDeck, shuffleDeck, dealHands,
     cardRank, sortCards, formatNumber, isRedSuit,
     allSameNumber, isEightCut, isRevolution,
-    playClearsField, suitSetsMatch, isValidPlay, isMiwaLock
+    playClearsField, suitSetsMatch, isValidPlay
 } from './game.js';
 
 // ─────────────────────────────────────────────
@@ -787,126 +787,6 @@ function getActivePlayers(playerOrder, hands) {
     return (playerOrder || []).filter(p => hands && hands[p] && hands[p].length > 0);
 }
 
-function cloneHands(hands) {
-    const out = {};
-    for (const [pid, cards] of Object.entries(hands || {})) {
-        out[pid] = Array.isArray(cards) ? cards.slice() : [];
-    }
-    return out;
-}
-
-function getDirection(state) {
-    return state?.direction ?? 1;
-}
-
-function getFieldMeta(state) {
-    const field = state?.fieldCards || [];
-    if (!field.length) return { attack: 0, defense: 0, lastType: 'empty' };
-    if (field.every(c => c.number === 8)) return { attack: field.length, defense: 0, lastType: '8' };
-    if (field.every(c => c.number === 9)) return { attack: 1, defense: 0, lastType: '99' };
-    if (field.every(c => c.number === 13)) return { attack: 0, defense: field.length, lastType: 'K' };
-    if (field.every(c => c.number === 11)) return { attack: 1, defense: 0, lastType: 'J' };
-    return { attack: Math.max(1, field.length), defense: 0, lastType: 'normal' };
-}
-
-function isCardLocked(state, playerId, cardId) {
-    const locked = state?.lockedCards?.[playerId] || [];
-    return locked.includes(cardId);
-}
-
-function getNextActiveIndex(playerOrder, hands, startFrom, direction = 1) {
-    const len = playerOrder.length;
-    for (let offset = 0; offset < len; offset++) {
-        const idx = (startFrom + direction * offset + len) % len;
-        const pid = playerOrder[idx];
-        if (hands[pid] && hands[pid].length > 0) return idx;
-    }
-    return 0;
-}
-
-function parseCardLabel(value) {
-    const text = String(value || '').trim().toUpperCase();
-    if (text === 'A') return 1;
-    if (text === 'J') return 11;
-    if (text === 'Q') return 12;
-    if (text === 'K') return 13;
-    if (text === '2') return 2;
-    const n = Number(text);
-    if (!Number.isNaN(n)) return n;
-    return null;
-}
-
-function pickPlayerTarget(state, playerOrder, currentPlayerId) {
-    const options = playerOrder.filter(pid => pid !== currentPlayerId);
-    if (options.length === 0) return null;
-    const promptText = `対象を選択してください: ${options.map((pid, index) => `${index + 1}. ${displayName(state, pid)}`).join(' / ')}`;
-    const choice = window.prompt(promptText, '1');
-    const idx = Number(choice) - 1;
-    return options[idx] || null;
-}
-
-function chooseGuessNumber(state) {
-    const guess = window.prompt('言う数字を入力してください（例: A, 7, J, Q, K, 2）', 'A');
-    const parsed = parseCardLabel(guess);
-    if (parsed === null) {
-        showToast('数字の入力が正しくありません');
-        return null;
-    }
-    return parsed;
-}
-
-function chooseSalvageNumber() {
-    const guess = window.prompt('サルベージする数字を入力してください（例: A, 7, J, Q, K, 2）', 'A');
-    const parsed = parseCardLabel(guess);
-    if (parsed === null) {
-        showToast('数字の入力が正しくありません');
-        return null;
-    }
-    return parsed;
-}
-
-function getRandomCard(cards) {
-    if (!cards || cards.length === 0) return null;
-    return cards[Math.floor(Math.random() * cards.length)];
-}
-
-function validatePlaySelection(selected, fieldCards, fieldMeta, state) {
-    const revolution = !!state?.revolution;
-    const isBind = !!state?.isBind;
-
-    if (!selected || selected.length === 0) return { ok: false, message: 'カードを選択してください' };
-    if (selected.length === 1 && selected[0].number === 12) return { ok: true };
-    if (selected.length === 1 && selected[0].number === 9) return { ok: true };
-    if (selected.length === 1 && selected[0].number === 1) return { ok: true };
-    if (selected.length === 1 && selected[0].number === 2) return { ok: true };
-    if (selected.length >= 1 && selected.every(c => c.number === 10)) return { ok: true };
-    if (selected.length >= 1 && selected.every(c => c.number === 6)) return { ok: true };
-    if (selected.length >= 1 && selected.every(c => c.number === 11)) return { ok: true };
-    if (selected.length >= 1 && selected.every(c => c.number === 13)) {
-        if (!fieldCards || fieldCards.length === 0) return { ok: true };
-        if (fieldMeta.attack <= 0) return { ok: true };
-        return { ok: selected.length >= Math.max(1, fieldMeta.attack - 1) && selected.length <= fieldMeta.attack + 1 };
-    }
-
-    const sameNumber = selected.every(c => c.number === selected[0].number);
-    if (sameNumber) {
-        if (!fieldCards || fieldCards.length === 0) return { ok: true };
-        if (selected.length !== fieldCards.length) return { ok: false, message: '枚数が一致していません' };
-        if (isBind && !suitSetsMatch(fieldCards, selected)) return { ok: false, message: '縛りに合っていません' };
-        return { ok: cardRank(selected[0].number, revolution) > cardRank(fieldCards[0].number, revolution), message: 'その出し方は無効です' };
-    }
-
-    if (selected.length >= 2 && selected.every(c => c.suit === selected[0].suit)) {
-        return { ok: true };
-    }
-
-    return { ok: false, message: 'その出し方は無効です' };
-}
-
-function clearFieldLocks(lockedCards) {
-    return {};
-}
-
 // ─────────────────────────────────────────────
 //  Screen management
 // ─────────────────────────────────────────────
@@ -950,16 +830,11 @@ async function joinRoom() {
                     playerNames: { [myId]: myName },
                     hands: {},
                     fieldCards: [],
-                    fieldMeta: { attack: 0, defense: 0, lastType: 'empty' },
-                    discardPile: [],
-                    lockedCards: {},
                     turnIndex: 0,
                     passCount: 0,
                     isBind: false,
                     revolution: false,
-                    direction: 1,
                     finished: [],
-                    bigRevolutionLocked: false,
                     lastPlayedBy: null,
                     lastAction: '',
                     lastSeen: { [myId]: Date.now() }
@@ -1077,16 +952,11 @@ async function startGame() {
             tx.update(gameRef, {
                 hands: serializeHands(handsObj),
                 fieldCards: [],
-                fieldMeta: { attack: 0, defense: 0, lastType: 'empty' },
-                discardPile: [],
-                lockedCards: {},
                 turnIndex: 0,
                 passCount: 0,
                 isBind: false,
                 revolution: false,
-                direction: 1,
                 finished: [],
-                bigRevolutionLocked: false,
                 lastPlayedBy: null,
                 lastAction: 'ゲーム開始！カードが配られました'
             });
@@ -1106,15 +976,10 @@ async function playCards() {
     const selected = myHand.filter(c => selectedIds.has(c.id));
     if (selected.length === 0) { showToast('カードを選択してください'); return; }
 
+    // Pre-check locally
     const curField = gameState.fieldCards || [];
-    const fieldMeta = getFieldMeta(gameState);
-    const localValidation = validatePlaySelection(selected, curField, fieldMeta, gameState);
-    if (!localValidation.ok) {
-        showToast(localValidation.message || 'その出し方は無効です');
-        return;
-    }
-    if (selected.some(c => isCardLocked(gameState, myId, c.id))) {
-        showToast('ロックされたカードは出せません');
+    if (!isValidPlay(curField, selected, !!gameState.isBind, !!gameState.revolution)) {
+        showToast('その出し方は無効です');
         return;
     }
 
@@ -1128,188 +993,67 @@ async function playCards() {
             const turnIdx     = cur.turnIndex   || 0;
             if (playerOrder[turnIdx] !== myId) throw new Error('あなたのターンではありません');
 
-            const currentField = cur.fieldCards || [];
-            const currentMeta = getFieldMeta(cur);
-            const validation = validatePlaySelection(selected, currentField, currentMeta, cur);
-            if (!validation.ok) throw new Error(validation.message || '無効なプレイです');
+            // Re-validate against latest state
+            const field      = cur.fieldCards || [];
+            const revolution = !!cur.revolution;
+            const curBind    = !!cur.isBind;
+            if (!isValidPlay(field, selected, curBind, revolution)) {
+                throw new Error('無効なプレイです');
+            }
 
-            const nextHands = cloneHands(cur.hands);
-            const nextDiscard = Array.isArray(cur.discardPile) ? cur.discardPile.slice() : [];
-            const lockedCards = JSON.parse(JSON.stringify(cur.lockedCards || {}));
-            const direction = getDirection(cur);
-            const fieldClear = isEightCut(selected);
-
+            // ── Clone hands & remove played cards ──
+            const nextHands = {};
+            for (const [pid, h] of Object.entries(cur.hands || {})) {
+                nextHands[pid] = Array.isArray(h) ? h.slice() : [];
+            }
             nextHands[myId] = nextHands[myId].filter(c => !selected.some(s => s.id === c.id));
 
-            let nextField = [];
-            let nextFieldMeta = { attack: 0, defense: 0, lastType: 'empty' };
-            let nextRevolution = !!cur.revolution;
+            // ── 8切り ──
+            const eightCut = isEightCut(selected);
+
+            // ── 革命 ──
+            let nextRevolution = revolution;
+            if (isRevolution(selected)) nextRevolution = !nextRevolution;
+
+            // ── Field ──
+            const nextField = eightCut ? [] : serializeCards(selected);
+
+            // ── 縛り ──
             let nextBind = false;
-            let nextDirection = direction;
-            let nextFinished = Array.isArray(cur.finished) ? [...cur.finished] : [];
-            let nextTurn = getNextActiveIndex(playerOrder, nextHands, turnIdx + direction, direction);
-            let msg = `${displayName(cur, myId)} が ${selected.map(c => c.suit + formatNumber(c.number)).join(' ')} を出した`;
+            if (!eightCut && field.length > 0 && field.length === selected.length) {
+                nextBind = curBind || suitSetsMatch(field, selected);
+            }
 
-            const isQuestion = selected.length === 1 && selected[0].number === 12;
-            const isBabanuki = selected.length === 1 && selected[0].number === 9;
-            const isAce = selected.length === 1 && selected[0].number === 1;
-            const useOneStar = isAce ? window.confirm('Aを一番星として使いますか？') : false;
-            const isOneStar = isAce && useOneStar;
-            const isSalvage = selected.length === 1 && selected[0].number === 2;
-            const isTen = selected.length >= 1 && selected.every(c => c.number === 10);
-            const isSix = selected.length >= 1 && selected.every(c => c.number === 6);
-            const isJack = selected.length >= 1 && selected.every(c => c.number === 11);
-            const isBigRevolution = selected.length >= 4 && selected.every(c => c.number === selected[0].number);
-            const isKPlay = selected.length >= 1 && selected.every(c => c.number === 13);
+            // ── Finished? ──
+            const finished = Array.isArray(cur.finished) ? [...cur.finished] : [];
+            if (nextHands[myId].length === 0 && !finished.includes(myId)) {
+                finished.push(myId);
+            }
 
-            if (isQuestion) {
-                const target = pickPlayerTarget(cur, playerOrder, myId);
-                const guess = chooseGuessNumber(cur);
-                if (!target || guess === null) throw new Error('質問をキャンセルしました');
-                const targetHand = nextHands[target] || [];
-                if (isMiwaLock(targetHand)) {
-                    msg += '（Question不発：美和ロック）';
-                } else {
-                    const match = targetHand.filter(c => c.number === guess);
-                    if (match.length > 0) {
-                        const stolen = getRandomCard(match);
-                        nextHands[target] = targetHand.filter(c => c.id !== stolen.id);
-                        nextHands[myId].push(stolen);
-                        msg += `（Question: ${displayName(cur, target)}に${formatNumber(guess)}を要求し、1枚渡された）`;
-                    } else {
-                        msg += `（Question: ${displayName(cur, target)}は${formatNumber(guess)}を持っていません）`;
-                    }
-                }
-                nextField = [];
-                nextFieldMeta = { attack: 0, defense: 0, lastType: 'question' };
-            } else if (isBabanuki) {
-                const target = pickPlayerTarget(cur, playerOrder, myId);
-                if (!target) throw new Error('ババ抜きをキャンセルしました');
-                const targetHand = nextHands[target] || [];
-                if (isMiwaLock(targetHand)) {
-                    msg += '（ババ抜き不発：美和ロック）';
-                } else if (targetHand.length > 0) {
-                    const stolen = getRandomCard(targetHand);
-                    nextHands[target] = targetHand.filter(c => c.id !== stolen.id);
-                    nextHands[myId].push(stolen);
-                    msg += `（ババ抜き: ${displayName(cur, target)}から${stolen.suit + formatNumber(stolen.number)}を1枚奪った）`;
-                } else {
-                    msg += `（ババ抜き: ${displayName(cur, target)}は手札がありません）`;
-                }
-                nextField = [];
-                nextFieldMeta = { attack: 0, defense: 0, lastType: 'babanuki' };
-            } else if (isOneStar) {
-                const target = pickPlayerTarget(cur, playerOrder, myId);
-                const guess = chooseGuessNumber(cur);
-                if (!target || guess === null) throw new Error('一番星をキャンセルしました');
-                const targetHand = nextHands[target] || [];
-                if (isMiwaLock(targetHand)) {
-                    msg += '（一番星不発：美和ロック）';
-                } else {
-                    const matches = targetHand.filter(c => c.number === guess);
-                    if (matches.length > 0) {
-                        nextHands[target] = targetHand.filter(c => c.number !== guess);
-                        nextHands[myId] = nextHands[myId].concat(matches);
-                        msg += `（一番星: ${displayName(cur, target)}から${formatNumber(guess)}を${matches.length}枚奪った）`;
-                    } else {
-                        msg += `（一番星: ${displayName(cur, target)}は${formatNumber(guess)}を持っていません）`;
-                    }
-                }
-                nextField = [];
-                nextFieldMeta = { attack: 0, defense: 0, lastType: 'onestar' };
-            } else if (isAce) {
-                nextDirection = direction * -1;
-                if (!cur.bigRevolutionLocked) nextRevolution = !nextRevolution;
-                nextField = serializeCards(selected);
-                nextFieldMeta = { attack: 1, defense: 0, lastType: 'blackjack' };
-                msg += '（ブラックジャック）';
-                if (!cur.bigRevolutionLocked) msg += '（J革命）';
-            } else if (isSalvage) {
-                const guess = chooseSalvageNumber();
-                if (guess === null) throw new Error('2サルベージをキャンセルしました');
-                const saved = nextDiscard.findIndex(c => c.number === guess);
-                if (saved >= 0) {
-                    const recovered = nextDiscard.splice(saved, 1)[0];
-                    nextHands[myId].push(recovered);
-                    msg += `（2サルベージ: ${formatNumber(guess)}を1枚引き戻した）`;
-                } else {
-                    msg += `（2サルベージ: ${formatNumber(guess)}は捨て札にありません）`;
-                }
-                nextField = [];
-                nextFieldMeta = { attack: 0, defense: 0, lastType: 'salvage' };
-            } else if (isTen) {
-                nextDiscard.push(...selected);
-                msg += `（10捨て: ${selected.length}枚を捨て札へ）`;
-                nextField = [];
-                nextFieldMeta = { attack: 0, defense: 0, lastType: 'ten' };
-            } else if (isSix) {
-                const target = pickPlayerTarget(cur, playerOrder, myId);
-                if (!target) throw new Error('6ロックをキャンセルしました');
-                const targetHand = nextHands[target] || [];
-                if (targetHand.length > 0) {
-                    const locked = getRandomCard(targetHand);
-                    lockedCards[target] = Array.from(new Set([...(lockedCards[target] || []), locked.id]));
-                    msg += `（6ロック: ${displayName(cur, target)}のカード1枚を封印）`;
-                }
-                nextField = [];
-                nextFieldMeta = { attack: 0, defense: 0, lastType: 'six' };
-            } else if (isJack) {
-                nextDirection = direction * (selected.length % 2 === 0 ? 1 : -1);
-                if (!cur.bigRevolutionLocked) nextRevolution = !nextRevolution;
-                nextField = serializeCards(selected);
-                nextFieldMeta = { attack: 1, defense: 0, lastType: 'J' };
-                msg += '（Jリバース）';
-                if (!cur.bigRevolutionLocked) msg += '（J革命）';
-            } else if (isBigRevolution) {
-                nextRevolution = !nextRevolution;
-                nextField = serializeCards(selected);
-                nextFieldMeta = { attack: selected.length, defense: 0, lastType: 'big-revolution' };
-                msg += '（大革命）';
-            } else if (isKPlay) {
-                nextField = serializeCards(selected);
-                nextFieldMeta = { attack: 0, defense: selected.length, lastType: 'K' };
-            } else if (isEightCut(selected)) {
-                nextField = [];
-                nextFieldMeta = { attack: 0, defense: 0, lastType: 'eight' };
-                nextTurn = turnIdx;
-                msg += '（8切り！）';
+            // ── Next turn ──
+            let nextTurn;
+            if (eightCut && nextHands[myId].length > 0) {
+                nextTurn = turnIdx;                          // 8切り → same player
             } else {
-                nextField = serializeCards(selected);
-                nextFieldMeta = { attack: selected.length, defense: 0, lastType: 'normal' };
-                if (currentField.length > 0 && currentField.length === selected.length) {
-                    nextBind = cur.isBind || suitSetsMatch(currentField, selected);
-                }
+                nextTurn = findNextActive(playerOrder, nextHands, turnIdx + 1);
             }
+            if (nextTurn < 0) nextTurn = 0;
 
-            if (nextField.length === 0 && currentField.length > 0 && !isEightCut(selected)) {
-                nextFieldMeta = { attack: 0, defense: 0, lastType: nextFieldMeta.lastType };
-            }
-
-            if (isBigRevolution) {
-                nextTurn = getNextActiveIndex(playerOrder, nextHands, turnIdx + direction, direction);
-            }
-
-            if (nextHands[myId].length === 0 && !nextFinished.includes(myId)) {
-                nextFinished.push(myId);
-            }
-
-            if (fieldClear) {
-                lockedCards = {};
-            }
+            // ── Action message ──
+            const cardStr = selected.map(c => c.suit + formatNumber(c.number)).join(' ');
+            let msg = `${displayName(cur, myId)} が ${cardStr} を出した`;
+            if (eightCut)              msg += '（8切り！）';
+            if (isRevolution(selected)) msg += '（革命！）';
+            if (nextHands[myId].length === 0) msg += '（上がり！）';
 
             tx.update(gameRef, {
                 fieldCards:    nextField,
-                fieldMeta:     nextFieldMeta,
-                discardPile:  nextDiscard,
-                lockedCards:  lockedCards,
                 hands:         serializeHands(nextHands),
                 turnIndex:     nextTurn,
                 passCount:     0,
                 isBind:        nextBind,
                 revolution:    nextRevolution,
-                direction:     nextDirection,
-                finished:      nextFinished,
-                bigRevolutionLocked: cur.bigRevolutionLocked || isBigRevolution,
+                finished,
                 lastPlayedBy:  myId,
                 lastAction:    msg
             });
@@ -1338,11 +1082,12 @@ async function passAction() {
             const turnIdx     = cur.turnIndex   || 0;
             if (playerOrder[turnIdx] !== myId) throw new Error('あなたのターンではありません');
 
-            const hands = cloneHands(cur.hands);
+            const hands = cur.hands || {};
             const activePlayers = getActivePlayers(playerOrder, hands);
             const nextPassCount = (cur.passCount || 0) + 1;
-            const direction = getDirection(cur);
 
+            // If lastPlayedBy is still active, threshold = activePlayers − 1,
+            // otherwise ALL remaining active players must pass.
             const lp = cur.lastPlayedBy;
             const lastActive = lp && hands[lp] && hands[lp].length > 0;
             const threshold  = lastActive ? activePlayers.length - 1 : activePlayers.length;
@@ -1351,23 +1096,26 @@ async function passAction() {
             const actionMsg = `${displayName(cur, myId)} がパスした`;
 
             if (shouldClear) {
-                const fromIdx = lp ? playerOrder.indexOf(lp) : turnIdx;
-                const nextTurn = fromIdx >= 0
-                    ? getNextActiveIndex(playerOrder, hands, fromIdx + direction, direction)
-                    : getNextActiveIndex(playerOrder, hands, turnIdx + direction, direction);
+                let nextTurn;
+                if (lastActive) {
+                    nextTurn = playerOrder.indexOf(lp);
+                } else {
+                    const fromIdx = lp ? playerOrder.indexOf(lp) : turnIdx;
+                    nextTurn = findNextActive(playerOrder, hands, (fromIdx >= 0 ? fromIdx : 0) + 1);
+                }
+                if (nextTurn < 0) nextTurn = 0;
 
                 tx.update(gameRef, {
                     fieldCards:   [],
-                    fieldMeta:    { attack: 0, defense: 0, lastType: 'empty' },
                     passCount:    0,
                     isBind:       false,
-                    lockedCards:  {},
                     turnIndex:    nextTurn,
                     lastPlayedBy: null,
                     lastAction:   actionMsg + ' → 場が流れました'
                 });
             } else {
-                const nextTurn = getNextActiveIndex(playerOrder, hands, turnIdx + direction, direction);
+                let nextTurn = findNextActive(playerOrder, hands, turnIdx + 1);
+                if (nextTurn < 0) nextTurn = 0;
 
                 tx.update(gameRef, {
                     passCount:  nextPassCount,
@@ -1491,16 +1239,8 @@ function renderGame() {
     sorted.forEach(c => {
         const card = makeCard(c, 'hand-card');
         if (selectedIds.has(c.id)) card.classList.add('selected');
-        if (isCardLocked(gameState, myId, c.id)) {
-            card.style.opacity = '0.45';
-            card.title = 'ロック中';
-        }
         card.addEventListener('click', () => {
             if (isOver) return;
-            if (isCardLocked(gameState, myId, c.id)) {
-                showToast('ロックされたカードは出せません');
-                return;
-            }
             selectedIds.has(c.id) ? selectedIds.delete(c.id) : selectedIds.add(c.id);
             render();
         });
@@ -1573,3 +1313,23 @@ el.roomInput.addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
