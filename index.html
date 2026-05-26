@@ -1,31 +1,40 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>大富豪 - オンライン対戦</title>
     <meta name="description" content="オンラインで遊べる大富豪カードゲーム。8切り・革命・縛り対応。">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+        rel="stylesheet">
     <style>
         /* ── Reset & Base ─────────────────────────────── */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         :root {
             --bg-dark: #071a0e;
             --bg-mid: #0e2b19;
             --bg-light: #163d26;
             --bg-field: #1a4a2e;
-            --glass: rgba(255,255,255,0.05);
-            --glass-border: rgba(255,255,255,0.10);
-            --glass-hover: rgba(255,255,255,0.12);
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.10);
+            --glass-hover: rgba(255, 255, 255, 0.12);
             --gold: #ffd700;
             --gold-dim: #bfa530;
-            --gold-glow: rgba(255,215,0,0.35);
+            --gold-glow: rgba(255, 215, 0, 0.35);
             --suit-red: #ef5350;
             --suit-black: #263238;
             --text: #e0e0e0;
-            --text-dim: rgba(255,255,255,0.45);
+            --text-dim: rgba(255, 255, 255, 0.45);
             --text-bright: #ffffff;
             --success: #66bb6a;
             --danger: #ef5350;
@@ -33,7 +42,7 @@
             --radius-md: 14px;
             --radius-lg: 22px;
             --radius-full: 999px;
-            --font: 'Inter','Noto Sans JP',sans-serif;
+            --font: 'Inter', 'Noto Sans JP', sans-serif;
         }
 
         body {
@@ -46,8 +55,15 @@
             -webkit-user-select: none;
         }
 
-        .screen { display: none; flex-direction: column; height: 100dvh; }
-        .screen.active { display: flex; }
+        .screen {
+            display: none;
+            flex-direction: column;
+            height: 100dvh;
+        }
+
+        .screen.active {
+            display: flex;
+        }
 
         /* ── Join Screen ──────────────────────────────── */
         #join-screen {
@@ -56,9 +72,11 @@
             gap: 30px;
             padding: 20px;
         }
+
         .join-logo {
             text-align: center;
         }
+
         .join-logo h1 {
             font-size: 48px;
             font-weight: 800;
@@ -68,12 +86,14 @@
             background-clip: text;
             letter-spacing: 4px;
         }
+
         .join-logo p {
             color: var(--text-dim);
             margin-top: 6px;
             font-size: 14px;
             letter-spacing: 1px;
         }
+
         .join-panel {
             background: var(--glass);
             border: 1px solid var(--glass-border);
@@ -84,7 +104,11 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
         }
-        .input-group { margin-bottom: 18px; }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
         .input-group label {
             display: block;
             font-size: 12px;
@@ -94,18 +118,20 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+
         .input-group input {
             width: 100%;
             padding: 12px 16px;
             border-radius: var(--radius-sm);
             border: 1px solid var(--glass-border);
-            background: rgba(255,255,255,0.06);
+            background: rgba(255, 255, 255, 0.06);
             color: var(--text-bright);
             font-size: 15px;
             font-family: var(--font);
             outline: none;
             transition: border-color .2s;
         }
+
         .input-group input:focus {
             border-color: var(--gold-dim);
         }
@@ -125,41 +151,67 @@
             cursor: pointer;
             transition: transform .15s, box-shadow .15s, opacity .15s;
         }
-        .btn:active { transform: scale(.96); }
+
+        .btn:active {
+            transform: scale(.96);
+        }
+
         .btn:disabled {
             opacity: .35;
             cursor: not-allowed;
             transform: none !important;
             box-shadow: none !important;
         }
+
         .btn-primary {
             width: 100%;
             background: linear-gradient(135deg, var(--gold), #ff8f00);
             color: #1a1a1a;
-            box-shadow: 0 4px 18px rgba(255,215,0,.25);
+            box-shadow: 0 4px 18px rgba(255, 215, 0, .25);
         }
-        .btn-primary:hover:not(:disabled) { box-shadow: 0 6px 24px rgba(255,215,0,.35); transform: translateY(-1px); }
+
+        .btn-primary:hover:not(:disabled) {
+            box-shadow: 0 6px 24px rgba(255, 215, 0, .35);
+            transform: translateY(-1px);
+        }
+
         .btn-play {
             background: linear-gradient(135deg, var(--gold), #ffab00);
             color: #1a1a1a;
-            box-shadow: 0 4px 18px rgba(255,215,0,.25);
+            box-shadow: 0 4px 18px rgba(255, 215, 0, .25);
             min-width: 140px;
         }
-        .btn-play:hover:not(:disabled) { box-shadow: 0 6px 24px rgba(255,215,0,.35); transform: translateY(-1px); }
+
+        .btn-play:hover:not(:disabled) {
+            box-shadow: 0 6px 24px rgba(255, 215, 0, .35);
+            transform: translateY(-1px);
+        }
+
         .btn-pass {
-            background: rgba(255,255,255,0.10);
+            background: rgba(255, 255, 255, 0.10);
             color: var(--text);
             border: 1px solid var(--glass-border);
             min-width: 120px;
         }
-        .btn-pass:hover:not(:disabled) { background: rgba(255,255,255,0.16); }
+
+        .btn-pass:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.16);
+        }
+
         .btn-secondary {
-            background: rgba(255,255,255,0.10);
+            background: rgba(255, 255, 255, 0.10);
             color: var(--text);
             border: 1px solid var(--glass-border);
         }
-        .btn-secondary:hover:not(:disabled) { background: rgba(255,255,255,0.16); }
-        .btn-small { padding: 8px 18px; font-size: 13px; }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.16);
+        }
+
+        .btn-small {
+            padding: 8px 18px;
+            font-size: 13px;
+        }
 
         /* ── Lobby Screen ─────────────────────────────── */
         #lobby-screen {
@@ -168,24 +220,28 @@
             gap: 24px;
             padding: 20px;
         }
+
         .lobby-title {
             text-align: center;
         }
+
         .lobby-title h2 {
             font-size: 28px;
             font-weight: 700;
             color: var(--text-bright);
         }
+
         .lobby-title .room-id {
             display: inline-block;
             margin-top: 6px;
             padding: 4px 14px;
             border-radius: var(--radius-full);
-            background: rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.08);
             font-size: 13px;
             color: var(--text-dim);
             letter-spacing: 1px;
         }
+
         .lobby-panel {
             background: var(--glass);
             border: 1px solid var(--glass-border);
@@ -196,6 +252,7 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
         }
+
         .lobby-panel h3 {
             font-size: 13px;
             font-weight: 600;
@@ -204,48 +261,72 @@
             letter-spacing: 1px;
             margin-bottom: 14px;
         }
-        .player-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+
+        .player-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
         .player-item {
             display: flex;
             align-items: center;
             gap: 10px;
             padding: 10px 14px;
-            background: rgba(255,255,255,0.04);
+            background: rgba(255, 255, 255, 0.04);
             border-radius: var(--radius-sm);
             font-size: 14px;
             border: 1px solid transparent;
         }
-        .player-item.is-me { border-color: var(--gold-dim); background: rgba(255,215,0,0.06); }
-        .player-item .host-crown { font-size: 16px; }
+
+        .player-item.is-me {
+            border-color: var(--gold-dim);
+            background: rgba(255, 215, 0, 0.06);
+        }
+
+        .player-item .host-crown {
+            font-size: 16px;
+        }
+
         .player-item .you-tag {
             margin-left: auto;
             font-size: 11px;
             color: var(--gold);
             font-weight: 600;
         }
+
         .lobby-hint {
             text-align: center;
             font-size: 13px;
             color: var(--text-dim);
             margin-top: 8px;
         }
-        .lobby-actions { display: flex; gap: 10px; margin-top: 10px; }
+
+        .lobby-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
 
         /* ── Game Screen ──────────────────────────────── */
-        #game-screen { position: relative; }
+        #game-screen {
+            position: relative;
+        }
 
         .game-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 10px 18px;
-            background: rgba(0,0,0,0.35);
+            background: rgba(0, 0, 0, 0.35);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             border-bottom: 1px solid var(--glass-border);
             flex-shrink: 0;
             min-height: 46px;
         }
+
         .game-header-title {
             font-size: 16px;
             font-weight: 700;
@@ -254,7 +335,13 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .game-badges { display: flex; gap: 8px; align-items: center; }
+
+        .game-badges {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
         .badge {
             display: none;
             align-items: center;
@@ -265,27 +352,40 @@
             font-weight: 700;
             letter-spacing: .5px;
         }
-        .badge.visible { display: inline-flex; }
+
+        .badge.visible {
+            display: inline-flex;
+        }
+
         .badge-revolution {
             background: linear-gradient(135deg, #e040fb, #7c4dff);
             color: #fff;
             animation: pulse-badge 1.8s ease-in-out infinite;
         }
+
         .badge-bind {
             background: linear-gradient(135deg, #ff5252, #ff1744);
             color: #fff;
             animation: pulse-badge 2s ease-in-out infinite;
         }
+
         .badge-room {
             display: inline-flex;
-            background: rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.08);
             color: var(--text-dim);
             font-weight: 500;
         }
 
         @keyframes pulse-badge {
-            0%, 100% { opacity: .8; }
-            50% { opacity: 1; }
+
+            0%,
+            100% {
+                opacity: .8;
+            }
+
+            50% {
+                opacity: 1;
+            }
         }
 
         /* Opponents bar */
@@ -297,6 +397,7 @@
             flex-shrink: 0;
             flex-wrap: wrap;
         }
+
         .opponent-chip {
             display: flex;
             flex-direction: column;
@@ -309,13 +410,26 @@
             min-width: 90px;
             transition: border-color .3s, box-shadow .3s;
         }
+
         .opponent-chip.active-turn {
             border-color: var(--gold);
             box-shadow: 0 0 14px var(--gold-glow);
         }
-        .opponent-chip.is-finished { opacity: .45; }
-        .opponent-name { font-size: 13px; font-weight: 600; color: var(--text-bright); }
-        .opponent-count { font-size: 11px; color: var(--text-dim); }
+
+        .opponent-chip.is-finished {
+            opacity: .45;
+        }
+
+        .opponent-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-bright);
+        }
+
+        .opponent-count {
+            font-size: 11px;
+            color: var(--text-dim);
+        }
 
         /* Field */
         .field-wrap {
@@ -327,6 +441,7 @@
             padding: 10px 20px;
             min-height: 0;
         }
+
         .field-area {
             display: flex;
             justify-content: center;
@@ -335,11 +450,12 @@
             min-height: 120px;
             min-width: 200px;
             padding: 16px 24px;
-            border: 2px dashed rgba(255,255,255,0.12);
+            border: 2px dashed rgba(255, 255, 255, 0.12);
             border-radius: var(--radius-lg);
-            background: radial-gradient(ellipse, rgba(255,255,255,0.025) 0%, transparent 70%);
+            background: radial-gradient(ellipse, rgba(255, 255, 255, 0.025) 0%, transparent 70%);
             gap: 6px;
         }
+
         .field-empty {
             color: var(--text-dim);
             font-size: 13px;
@@ -352,20 +468,31 @@
             padding: 8px 18px;
             flex-shrink: 0;
         }
+
         .status-text {
             font-size: 16px;
             font-weight: 600;
             transition: color .2s;
         }
+
         .status-text.my-turn {
             color: var(--gold);
             text-shadow: 0 0 18px var(--gold-glow);
             animation: glow-text 2s ease-in-out infinite;
         }
+
         @keyframes glow-text {
-            0%, 100% { text-shadow: 0 0 12px var(--gold-glow); }
-            50% { text-shadow: 0 0 26px var(--gold-glow); }
+
+            0%,
+            100% {
+                text-shadow: 0 0 12px var(--gold-glow);
+            }
+
+            50% {
+                text-shadow: 0 0 26px var(--gold-glow);
+            }
         }
+
         .log-text {
             font-size: 12px;
             color: var(--text-dim);
@@ -385,10 +512,11 @@
         /* Hand */
         .hand-wrap {
             padding: 12px 20px 24px;
-            background: rgba(0,0,0,0.25);
+            background: rgba(0, 0, 0, 0.25);
             border-top: 1px solid var(--glass-border);
             flex-shrink: 0;
         }
+
         .hand-label {
             text-align: center;
             font-size: 11px;
@@ -398,6 +526,7 @@
             letter-spacing: 1px;
             margin-bottom: 10px;
         }
+
         .hand-cards {
             display: flex;
             justify-content: center;
@@ -411,7 +540,7 @@
             height: 92px;
             background: #fff;
             border-radius: var(--radius-sm);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -419,18 +548,26 @@
             position: relative;
             flex-shrink: 0;
         }
-        .card.suit-red { color: var(--suit-red); }
-        .card.suit-black { color: var(--suit-black); }
+
+        .card.suit-red {
+            color: var(--suit-red);
+        }
+
+        .card.suit-black {
+            color: var(--suit-black);
+        }
 
         .card-corner {
             font-size: 12px;
             font-weight: 700;
             line-height: 1.15;
         }
+
         .card-corner.bottom-right {
             text-align: right;
             transform: rotate(180deg);
         }
+
         .card-center {
             text-align: center;
             font-size: 26px;
@@ -443,26 +580,35 @@
             transition: transform .15s ease, box-shadow .15s ease;
             margin: 0 -10px;
         }
-        .hand-card:first-child { margin-left: 0; }
-        .hand-card:last-child { margin-right: 0; }
+
+        .hand-card:first-child {
+            margin-left: 0;
+        }
+
+        .hand-card:last-child {
+            margin-right: 0;
+        }
+
         .hand-card:hover {
             transform: translateY(-14px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
             z-index: 10;
         }
+
         .hand-card.selected {
             transform: translateY(-28px);
-            box-shadow: 0 0 22px var(--gold-glow), 0 8px 18px rgba(0,0,0,0.3);
+            box-shadow: 0 0 22px var(--gold-glow), 0 8px 18px rgba(0, 0, 0, 0.3);
             outline: 2.5px solid var(--gold);
             z-index: 5;
         }
+
         .hand-card.selected:hover {
             transform: translateY(-32px);
         }
 
         /* Field card */
         .field-card {
-            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
         }
 
         /* ── Game-Over Overlay ─────────────────────────── */
@@ -471,14 +617,18 @@
             position: fixed;
             inset: 0;
             z-index: 100;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
             align-items: center;
             justify-content: center;
             padding: 20px;
         }
-        .overlay.visible { display: flex; }
+
+        .overlay.visible {
+            display: flex;
+        }
+
         .overlay-panel {
             background: var(--bg-mid);
             border: 1px solid var(--glass-border);
@@ -488,6 +638,7 @@
             max-width: 380px;
             text-align: center;
         }
+
         .overlay-panel h2 {
             font-size: 26px;
             font-weight: 800;
@@ -497,17 +648,29 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .rank-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+
+        .rank-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
         .rank-item {
             display: flex;
             align-items: center;
             gap: 12px;
             padding: 12px 16px;
             border-radius: var(--radius-sm);
-            background: rgba(255,255,255,0.04);
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid transparent;
         }
-        .rank-item.is-me { border-color: var(--gold-dim); background: rgba(255,215,0,0.08); }
+
+        .rank-item.is-me {
+            border-color: var(--gold-dim);
+            background: rgba(255, 215, 0, 0.08);
+        }
+
         .rank-position {
             width: 32px;
             height: 32px;
@@ -519,13 +682,41 @@
             font-weight: 800;
             flex-shrink: 0;
         }
-        .rank-position.gold { background: linear-gradient(135deg, #ffd700, #ff8f00); color: #1a1a1a; }
-        .rank-position.silver { background: linear-gradient(135deg, #b0bec5, #78909c); color: #1a1a1a; }
-        .rank-position.bronze { background: linear-gradient(135deg, #a1887f, #795548); color: #fff; }
-        .rank-position.other { background: rgba(255,255,255,0.1); color: var(--text-dim); }
-        .rank-info { text-align: left; }
-        .rank-name { font-size: 15px; font-weight: 600; color: var(--text-bright); }
-        .rank-label { font-size: 11px; color: var(--text-dim); }
+
+        .rank-position.gold {
+            background: linear-gradient(135deg, #ffd700, #ff8f00);
+            color: #1a1a1a;
+        }
+
+        .rank-position.silver {
+            background: linear-gradient(135deg, #b0bec5, #78909c);
+            color: #1a1a1a;
+        }
+
+        .rank-position.bronze {
+            background: linear-gradient(135deg, #a1887f, #795548);
+            color: #fff;
+        }
+
+        .rank-position.other {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-dim);
+        }
+
+        .rank-info {
+            text-align: left;
+        }
+
+        .rank-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-bright);
+        }
+
+        .rank-label {
+            font-size: 11px;
+            color: var(--text-dim);
+        }
 
         /* ── Toast ─────────────────────────────────────── */
         .toast {
@@ -535,7 +726,7 @@
             transform: translateX(-50%) translateY(20px);
             padding: 10px 22px;
             border-radius: var(--radius-full);
-            background: rgba(0,0,0,0.85);
+            background: rgba(0, 0, 0, 0.85);
             color: var(--danger);
             font-size: 13px;
             font-weight: 600;
@@ -544,6 +735,7 @@
             transition: opacity .25s, transform .25s;
             pointer-events: none;
         }
+
         .toast.visible {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
@@ -551,785 +743,792 @@
 
         /* ── Responsive ────────────────────────────────── */
         @media (max-width: 600px) {
-            .card { width: 52px; height: 76px; padding: 4px 5px; }
-            .card-corner { font-size: 10px; }
-            .card-center { font-size: 20px; }
-            .hand-card { margin: 0 -8px; }
-            .join-logo h1 { font-size: 36px; }
-            .controls-bar { gap: 10px; }
-            .btn-play, .btn-pass { min-width: 100px; padding: 11px 20px; font-size: 14px; }
+            .card {
+                width: 52px;
+                height: 76px;
+                padding: 4px 5px;
+            }
+
+            .card-corner {
+                font-size: 10px;
+            }
+
+            .card-center {
+                font-size: 20px;
+            }
+
+            .hand-card {
+                margin: 0 -8px;
+            }
+
+            .join-logo h1 {
+                font-size: 36px;
+            }
+
+            .controls-bar {
+                gap: 10px;
+            }
+
+            .btn-play,
+            .btn-pass {
+                min-width: 100px;
+                padding: 11px 20px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<!-- ═══════════════ Join Screen ═══════════════ -->
-<div id="join-screen" class="screen active">
-    <div class="join-logo">
-        <h1>大富豪</h1>
-        <p>オンライン対戦カードゲーム</p>
-    </div>
-    <div class="join-panel">
-        <div class="input-group">
-            <label>プレイヤー名</label>
-            <input id="name-input" type="text" placeholder="名前を入力" maxlength="10">
+    <!-- ═══════════════ Join Screen ═══════════════ -->
+    <div id="join-screen" class="screen active">
+        <div class="join-logo">
+            <h1>大富豪</h1>
+            <p>オンライン対戦カードゲーム</p>
         </div>
-        <div class="input-group">
-            <label>ルーム ID</label>
-            <input id="room-input" type="text" placeholder="ルームIDを入力" value="game-room-1">
-        </div>
-        <button id="join-btn" class="btn btn-primary">ルームに参加</button>
-    </div>
-</div>
-
-<!-- ═══════════════ Lobby Screen ═══════════════ -->
-<div id="lobby-screen" class="screen">
-    <div class="lobby-title">
-        <h2>ルーム</h2>
-        <div class="room-id" id="lobby-room-label">game-room-1</div>
-    </div>
-    <div class="lobby-panel">
-        <h3>参加プレイヤー</h3>
-        <div class="player-list" id="player-list"></div>
-        <button id="start-btn" class="btn btn-primary" style="display:none">ゲーム開始</button>
-        <p class="lobby-hint" id="lobby-hint">ホストがゲーム開始するのを待っています…</p>
-    </div>
-    <div class="lobby-actions">
-        <button id="leave-lobby-btn" class="btn btn-secondary btn-small">ルームを離れる</button>
-    </div>
-</div>
-
-<!-- ═══════════════ Game Screen ═══════════════ -->
-<div id="game-screen" class="screen">
-    <!-- Header -->
-    <div class="game-header">
-        <span class="game-header-title">大富豪</span>
-        <div class="game-badges">
-            <span class="badge badge-revolution" id="revolution-badge">⚡ 革命</span>
-            <span class="badge badge-bind" id="bind-badge">🔒 縛り</span>
-            <span class="badge badge-room" id="game-room-badge">Room</span>
+        <div class="join-panel">
+            <div class="input-group">
+                <label>プレイヤー名</label>
+                <input id="name-input" type="text" placeholder="名前を入力" maxlength="10">
+            </div>
+            <div class="input-group">
+                <label>ルーム ID</label>
+                <input id="room-input" type="text" placeholder="ルームIDを入力" value="game-room-1">
+            </div>
+            <button id="join-btn" class="btn btn-primary">ルームに参加</button>
         </div>
     </div>
 
-    <!-- Opponents -->
-    <div class="opponents-bar" id="opponents-bar"></div>
-
-    <!-- Field -->
-    <div class="field-wrap">
-        <div class="field-area" id="field-area">
-            <span class="field-empty">場にカードはありません</span>
+    <!-- ═══════════════ Lobby Screen ═══════════════ -->
+    <div id="lobby-screen" class="screen">
+        <div class="lobby-title">
+            <h2>ルーム</h2>
+            <div class="room-id" id="lobby-room-label">game-room-1</div>
+        </div>
+        <div class="lobby-panel">
+            <h3>参加プレイヤー</h3>
+            <div class="player-list" id="player-list"></div>
+            <button id="start-btn" class="btn btn-primary" style="display:none">ゲーム開始</button>
+            <p class="lobby-hint" id="lobby-hint">ホストがゲーム開始するのを待っています…</p>
+        </div>
+        <div class="lobby-actions">
+            <button id="leave-lobby-btn" class="btn btn-secondary btn-small">ルームを離れる</button>
         </div>
     </div>
 
-    <!-- Status -->
-    <div class="status-bar">
-        <div class="status-text" id="status-text">待機中…</div>
-        <div class="log-text" id="log-text"></div>
+    <!-- ═══════════════ Game Screen ═══════════════ -->
+    <div id="game-screen" class="screen">
+        <!-- Header -->
+        <div class="game-header">
+            <span class="game-header-title">大富豪</span>
+            <div class="game-badges">
+                <span class="badge badge-revolution" id="revolution-badge">⚡ 革命</span>
+                <span class="badge badge-bind" id="bind-badge">🔒 縛り</span>
+                <span class="badge badge-room" id="game-room-badge">Room</span>
+            </div>
+        </div>
+
+        <!-- Opponents -->
+        <div class="opponents-bar" id="opponents-bar"></div>
+
+        <!-- Field -->
+        <div class="field-wrap">
+            <div class="field-area" id="field-area">
+                <span class="field-empty">場にカードはありません</span>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="status-bar">
+            <div class="status-text" id="status-text">待機中…</div>
+            <div class="log-text" id="log-text"></div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-bar">
+            <button id="play-btn" class="btn btn-play" disabled>カードを出す</button>
+            <button id="pass-btn" class="btn btn-pass" disabled>パス</button>
+        </div>
+
+        <!-- Hand -->
+        <div class="hand-wrap">
+            <div class="hand-label">手札 — <span id="hand-count">0</span>枚</div>
+            <div class="hand-cards" id="my-hand"></div>
+        </div>
     </div>
 
-    <!-- Controls -->
-    <div class="controls-bar">
-        <button id="play-btn" class="btn btn-play" disabled>カードを出す</button>
-        <button id="pass-btn" class="btn btn-pass" disabled>パス</button>
+    <!-- ═══════════════ Game-Over Overlay ═══════════════ -->
+    <div class="overlay" id="gameover-overlay">
+        <div class="overlay-panel">
+            <h2>ゲーム終了</h2>
+            <div class="rank-list" id="rankings"></div>
+            <button id="newgame-btn" class="btn btn-primary" style="display:none">もう一度プレイ</button>
+            <p class="lobby-hint" id="gameover-hint"></p>
+        </div>
     </div>
 
-    <!-- Hand -->
-    <div class="hand-wrap">
-        <div class="hand-label">手札 — <span id="hand-count">0</span>枚</div>
-        <div class="hand-cards" id="my-hand"></div>
-    </div>
-</div>
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
 
-<!-- ═══════════════ Game-Over Overlay ═══════════════ -->
-<div class="overlay" id="gameover-overlay">
-    <div class="overlay-panel">
-        <h2>ゲーム終了</h2>
-        <div class="rank-list" id="rankings"></div>
-        <button id="newgame-btn" class="btn btn-primary" style="display:none">もう一度プレイ</button>
-        <p class="lobby-hint" id="gameover-hint"></p>
-    </div>
-</div>
+    <!-- ═══════════════ JavaScript ═══════════════ -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, updateDoc, setDoc, runTransaction }
+            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged }
+            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import {
+            buildDeck, shuffleDeck, dealHands,
+            cardRank, sortCards, formatNumber, isRedSuit,
+            allSameNumber, isEightCut, isRevolution,
+            playClearsField, suitSetsMatch, isValidPlay
+        } from './game.js';
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
+        // ─────────────────────────────────────────────
+        //  Firebase setup
+        // ─────────────────────────────────────────────
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKXo6VpXv4iEb6zA4CfoJ1U2Bvm6ymEfg",
+            authDomain: "millionaire-b0b33.firebaseapp.com",
+            projectId: "millionaire-b0b33",
+            storageBucket: "millionaire-b0b33.firebasestorage.app",
+            messagingSenderId: "186941794367",
+            appId: "1:186941794367:web:472c345465f84652f6708a"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth();
 
-<!-- ═══════════════ JavaScript ═══════════════ -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, doc, getDoc, updateDoc, setDoc, runTransaction }
-    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, signInAnonymously, onAuthStateChanged }
-    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import {
-    buildDeck, shuffleDeck, dealHands,
-    cardRank, sortCards, formatNumber, isRedSuit,
-    allSameNumber, isEightCut, isRevolution,
-    playClearsField, suitSetsMatch, isValidPlay
-} from './game.js';
+        // ─────────────────────────────────────────────
+        //  State
+        // ─────────────────────────────────────────────
+        let myId = null;
+        let myName = '';
+        let roomId = '';
+        let gameRef = null;
+        let gameState = null;
+        let selectedIds = new Set();
+        let pollTimer = null;
+        let inRoom = false;
+        let toastTimer = null;
 
-// ─────────────────────────────────────────────
-//  Firebase setup
-// ─────────────────────────────────────────────
-const firebaseConfig = {
-    apiKey: "AIzaSyCKXo6VpXv4iEb6zA4CfoJ1U2Bvm6ymEfg",
-    authDomain: "millionaire-b0b33.firebaseapp.com",
-    projectId: "millionaire-b0b33",
-    storageBucket: "millionaire-b0b33.firebasestorage.app",
-    messagingSenderId: "186941794367",
-    appId: "1:186941794367:web:472c345465f84652f6708a"
-};
-const app  = initializeApp(firebaseConfig);
-const db   = getFirestore(app);
-const auth = getAuth();
+        // ─────────────────────────────────────────────
+        //  DOM references
+        // ─────────────────────────────────────────────
+        const $ = id => document.getElementById(id);
+        const el = {
+            joinScreen: $('join-screen'),
+            lobbyScreen: $('lobby-screen'),
+            gameScreen: $('game-screen'),
+            gameoverOverlay: $('gameover-overlay'),
+            nameInput: $('name-input'),
+            roomInput: $('room-input'),
+            joinBtn: $('join-btn'),
+            lobbyRoomLabel: $('lobby-room-label'),
+            playerList: $('player-list'),
+            startBtn: $('start-btn'),
+            lobbyHint: $('lobby-hint'),
+            leaveLobbyBtn: $('leave-lobby-btn'),
+            revBadge: $('revolution-badge'),
+            bindBadge: $('bind-badge'),
+            roomBadge: $('game-room-badge'),
+            opponentsBar: $('opponents-bar'),
+            fieldArea: $('field-area'),
+            statusText: $('status-text'),
+            logText: $('log-text'),
+            playBtn: $('play-btn'),
+            passBtn: $('pass-btn'),
+            myHand: $('my-hand'),
+            handCount: $('hand-count'),
+            rankings: $('rankings'),
+            newgameBtn: $('newgame-btn'),
+            gameoverHint: $('gameover-hint'),
+            toast: $('toast'),
+        };
 
-// ─────────────────────────────────────────────
-//  State
-// ─────────────────────────────────────────────
-let myId       = null;
-let myName     = '';
-let roomId     = '';
-let gameRef    = null;
-let gameState  = null;
-let selectedIds = new Set();
-let pollTimer  = null;
-let inRoom     = false;
-let toastTimer = null;
+        // ─────────────────────────────────────────────
+        //  Auth
+        // ─────────────────────────────────────────────
+        signInAnonymously(auth).catch(e => console.warn('Anonymous sign-in failed', e));
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                myId = user.uid;
+                console.log('Auth OK:', myId);
+            }
+        });
 
-// ─────────────────────────────────────────────
-//  DOM references
-// ─────────────────────────────────────────────
-const $  = id => document.getElementById(id);
-const el = {
-    joinScreen:     $('join-screen'),
-    lobbyScreen:    $('lobby-screen'),
-    gameScreen:     $('game-screen'),
-    gameoverOverlay:$('gameover-overlay'),
-    nameInput:      $('name-input'),
-    roomInput:      $('room-input'),
-    joinBtn:        $('join-btn'),
-    lobbyRoomLabel: $('lobby-room-label'),
-    playerList:     $('player-list'),
-    startBtn:       $('start-btn'),
-    lobbyHint:      $('lobby-hint'),
-    leaveLobbyBtn:  $('leave-lobby-btn'),
-    revBadge:       $('revolution-badge'),
-    bindBadge:      $('bind-badge'),
-    roomBadge:      $('game-room-badge'),
-    opponentsBar:   $('opponents-bar'),
-    fieldArea:      $('field-area'),
-    statusText:     $('status-text'),
-    logText:        $('log-text'),
-    playBtn:        $('play-btn'),
-    passBtn:        $('pass-btn'),
-    myHand:         $('my-hand'),
-    handCount:      $('hand-count'),
-    rankings:       $('rankings'),
-    newgameBtn:     $('newgame-btn'),
-    gameoverHint:   $('gameover-hint'),
-    toast:          $('toast'),
-};
+        // Restore saved name
+        const savedName = localStorage.getItem('daifugo_name');
+        if (savedName) el.nameInput.value = savedName;
 
-// ─────────────────────────────────────────────
-//  Auth
-// ─────────────────────────────────────────────
-signInAnonymously(auth).catch(e => console.warn('Anonymous sign-in failed', e));
-onAuthStateChanged(auth, user => {
-    if (user) {
-        myId = user.uid;
-        console.log('Auth OK:', myId);
-    }
-});
+        // ─────────────────────────────────────────────
+        //  Utility helpers
+        // ─────────────────────────────────────────────
+        function showToast(msg) {
+            el.toast.textContent = msg;
+            el.toast.classList.add('visible');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => el.toast.classList.remove('visible'), 2200);
+        }
 
-// Restore saved name
-const savedName = localStorage.getItem('daifugo_name');
-if (savedName) el.nameInput.value = savedName;
+        function serializeCard(c) {
+            return { id: c.id, suit: c.suit, number: c.number };
+        }
+        function serializeCards(cards) {
+            return (cards || []).map(serializeCard);
+        }
+        function serializeHands(hands) {
+            const out = {};
+            for (const [pid, cards] of Object.entries(hands || {})) {
+                out[pid] = serializeCards(cards);
+            }
+            return out;
+        }
 
-// ─────────────────────────────────────────────
-//  Utility helpers
-// ─────────────────────────────────────────────
-function showToast(msg) {
-    el.toast.textContent = msg;
-    el.toast.classList.add('visible');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.toast.classList.remove('visible'), 2200);
-}
+        function displayName(state, pid) {
+            return (state && state.playerNames && state.playerNames[pid]) || pid?.slice(0, 6) || '???';
+        }
 
-function serializeCard(c) {
-    return { id: c.id, suit: c.suit, number: c.number };
-}
-function serializeCards(cards) {
-    return (cards || []).map(serializeCard);
-}
-function serializeHands(hands) {
-    const out = {};
-    for (const [pid, cards] of Object.entries(hands || {})) {
-        out[pid] = serializeCards(cards);
-    }
-    return out;
-}
+        /** Find the next player index (from startFrom, wrapping) who still has cards. */
+        function findNextActive(playerOrder, hands, startFrom) {
+            const len = playerOrder.length;
+            for (let i = 0; i < len; i++) {
+                const idx = (startFrom + i) % len;
+                const p = playerOrder[idx];
+                if (hands[p] && hands[p].length > 0) return idx;
+            }
+            return -1;
+        }
 
-function displayName(state, pid) {
-    return (state && state.playerNames && state.playerNames[pid]) || pid?.slice(0, 6) || '???';
-}
+        function getActivePlayers(playerOrder, hands) {
+            return (playerOrder || []).filter(p => hands && hands[p] && hands[p].length > 0);
+        }
 
-/** Find the next player index (from startFrom, wrapping) who still has cards. */
-function findNextActive(playerOrder, hands, startFrom) {
-    const len = playerOrder.length;
-    for (let i = 0; i < len; i++) {
-        const idx = (startFrom + i) % len;
-        const p = playerOrder[idx];
-        if (hands[p] && hands[p].length > 0) return idx;
-    }
-    return -1;
-}
+        // ─────────────────────────────────────────────
+        //  Screen management
+        // ─────────────────────────────────────────────
+        function showScreen(name) {
+            el.joinScreen.classList.toggle('active', name === 'join');
+            el.lobbyScreen.classList.toggle('active', name === 'lobby');
+            el.gameScreen.classList.toggle('active', name === 'game');
+        }
 
-function getActivePlayers(playerOrder, hands) {
-    return (playerOrder || []).filter(p => hands && hands[p] && hands[p].length > 0);
-}
+        function getPhase(st) {
+            if (!st || !st.playerOrder || st.playerOrder.length === 0) return 'lobby';
+            const hasCards = Object.values(st.hands || {}).some(h => Array.isArray(h) && h.length > 0);
+            const finished = st.finished || [];
+            if (!hasCards && finished.length === 0) return 'lobby';
+            const active = getActivePlayers(st.playerOrder, st.hands || {});
+            if (finished.length > 0 && active.length <= 1) return 'gameover';
+            return 'game';
+        }
 
-// ─────────────────────────────────────────────
-//  Screen management
-// ─────────────────────────────────────────────
-function showScreen(name) {
-    el.joinScreen.classList.toggle('active',  name === 'join');
-    el.lobbyScreen.classList.toggle('active', name === 'lobby');
-    el.gameScreen.classList.toggle('active',  name === 'game');
-}
+        // ─────────────────────────────────────────────
+        //  Join room
+        // ─────────────────────────────────────────────
+        async function joinRoom() {
+            const name = el.nameInput.value.trim();
+            const room = el.roomInput.value.trim();
+            if (!name) { showToast('名前を入力してください'); return; }
+            if (!room) { showToast('ルームIDを入力してください'); return; }
+            if (!myId) { showToast('認証中です…少し待ってください'); return; }
 
-function getPhase(st) {
-    if (!st || !st.playerOrder || st.playerOrder.length === 0) return 'lobby';
-    const hasCards   = Object.values(st.hands || {}).some(h => Array.isArray(h) && h.length > 0);
-    const finished   = st.finished || [];
-    if (!hasCards && finished.length === 0) return 'lobby';
-    const active = getActivePlayers(st.playerOrder, st.hands || {});
-    if (finished.length > 0 && active.length <= 1) return 'gameover';
-    return 'game';
-}
+            myName = name;
+            localStorage.setItem('daifugo_name', myName);
+            roomId = room;
+            gameRef = doc(db, 'rooms', roomId);
 
-// ─────────────────────────────────────────────
-//  Join room
-// ─────────────────────────────────────────────
-async function joinRoom() {
-    const name = el.nameInput.value.trim();
-    const room = el.roomInput.value.trim();
-    if (!name) { showToast('名前を入力してください'); return; }
-    if (!room) { showToast('ルームIDを入力してください'); return; }
-    if (!myId) { showToast('認証中です…少し待ってください'); return; }
-
-    myName = name;
-    localStorage.setItem('daifugo_name', myName);
-    roomId = room;
-    gameRef = doc(db, 'rooms', roomId);
-
-    try {
-        await runTransaction(db, async tx => {
-            const snap = await tx.get(gameRef);
-            if (!snap.exists()) {
-                tx.set(gameRef, {
-                    playerOrder: [myId],
-                    playerNames: { [myId]: myName },
-                    hands: {},
-                    fieldCards: [],
-                    turnIndex: 0,
-                    passCount: 0,
-                    isBind: false,
-                    revolution: false,
-                    finished: [],
-                    lastPlayedBy: null,
-                    lastAction: '',
-                    lastSeen: { [myId]: Date.now() }
+            try {
+                await runTransaction(db, async tx => {
+                    const snap = await tx.get(gameRef);
+                    if (!snap.exists()) {
+                        tx.set(gameRef, {
+                            playerOrder: [myId],
+                            playerNames: { [myId]: myName },
+                            hands: {},
+                            fieldCards: [],
+                            turnIndex: 0,
+                            passCount: 0,
+                            isBind: false,
+                            revolution: false,
+                            finished: [],
+                            lastPlayedBy: null,
+                            lastAction: '',
+                            lastSeen: { [myId]: Date.now() }
+                        });
+                    } else {
+                        const cur = snap.data();
+                        const po = cur.playerOrder || [];
+                        if (po.includes(myId)) {
+                            tx.update(gameRef, {
+                                [`playerNames.${myId}`]: myName,
+                                [`lastSeen.${myId}`]: Date.now()
+                            });
+                        } else if (po.length < 4) {
+                            tx.update(gameRef, {
+                                playerOrder: [...po, myId],
+                                [`playerNames.${myId}`]: myName,
+                                [`lastSeen.${myId}`]: Date.now()
+                            });
+                        } else {
+                            throw new Error('ルームが満員です (最大4人)');
+                        }
+                    }
                 });
-            } else {
-                const cur = snap.data();
-                const po = cur.playerOrder || [];
-                if (po.includes(myId)) {
+
+                inRoom = true;
+                showScreen('lobby');
+                el.lobbyRoomLabel.textContent = roomId;
+                startPolling();
+                await refreshState();
+            } catch (e) {
+                showToast('参加失敗: ' + e.message);
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        //  Leave room
+        // ─────────────────────────────────────────────
+        async function leaveRoom() {
+            if (!gameRef || !myId) return;
+            try {
+                await runTransaction(db, async tx => {
+                    const snap = await tx.get(gameRef);
+                    if (!snap.exists()) return;
+                    const cur = snap.data();
+                    const nextPO = (cur.playerOrder || []).filter(id => id !== myId);
+                    const nextNames = { ...(cur.playerNames || {}) };
+                    const nextHands = { ...(cur.hands || {}) };
+                    const nextLS = { ...(cur.lastSeen || {}) };
+                    const nextFin = (cur.finished || []).filter(id => id !== myId);
+                    delete nextNames[myId];
+                    delete nextHands[myId];
+                    delete nextLS[myId];
                     tx.update(gameRef, {
-                        [`playerNames.${myId}`]: myName,
-                        [`lastSeen.${myId}`]: Date.now()
+                        playerOrder: nextPO,
+                        playerNames: nextNames,
+                        hands: serializeHands(nextHands),
+                        finished: nextFin,
+                        lastSeen: nextLS
                     });
-                } else if (po.length < 4) {
+                });
+            } catch (e) { console.warn('leave failed', e); }
+
+            stopPolling();
+            inRoom = false;
+            gameState = null;
+            showScreen('join');
+        }
+
+        // ─────────────────────────────────────────────
+        //  Polling
+        // ─────────────────────────────────────────────
+        function startPolling() {
+            stopPolling();
+            pollTimer = setInterval(refreshState, 2500);
+        }
+        function stopPolling() {
+            if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+        }
+
+        async function refreshState() {
+            if (!myId || !gameRef) return;
+            try {
+                // heartbeat
+                await updateDoc(gameRef, { [`lastSeen.${myId}`]: Date.now() }).catch(() => { });
+
+                const snap = await getDoc(gameRef);
+                if (!snap.exists()) return;
+                gameState = snap.data();
+                render();
+            } catch (e) {
+                console.warn('refresh error', e);
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        //  Start game (host)
+        // ─────────────────────────────────────────────
+        async function startGame() {
+            if (!gameRef || !gameState) return;
+            const po = gameState.playerOrder || [];
+            if (po[0] !== myId) { showToast('ホストのみ開始できます'); return; }
+            if (po.length < 2) { showToast('2人以上必要です'); return; }
+
+            try {
+                await runTransaction(db, async tx => {
+                    const snap = await tx.get(gameRef);
+                    if (!snap.exists()) return;
+                    const cur = snap.data();
+                    const players = cur.playerOrder || [];
+                    const deck = shuffleDeck(buildDeck());
+                    const dealt = dealHands(deck, players.length);
+                    const handsObj = {};
+                    players.forEach((p, i) => handsObj[p] = dealt[i]);
+
                     tx.update(gameRef, {
-                        playerOrder: [...po, myId],
-                        [`playerNames.${myId}`]: myName,
-                        [`lastSeen.${myId}`]: Date.now()
+                        hands: serializeHands(handsObj),
+                        fieldCards: [],
+                        turnIndex: 0,
+                        passCount: 0,
+                        isBind: false,
+                        revolution: false,
+                        finished: [],
+                        lastPlayedBy: null,
+                        lastAction: 'ゲーム開始！カードが配られました'
                     });
-                } else {
-                    throw new Error('ルームが満員です (最大4人)');
-                }
-            }
-        });
-
-        inRoom = true;
-        showScreen('lobby');
-        el.lobbyRoomLabel.textContent = roomId;
-        startPolling();
-        await refreshState();
-    } catch (e) {
-        showToast('参加失敗: ' + e.message);
-    }
-}
-
-// ─────────────────────────────────────────────
-//  Leave room
-// ─────────────────────────────────────────────
-async function leaveRoom() {
-    if (!gameRef || !myId) return;
-    try {
-        await runTransaction(db, async tx => {
-            const snap = await tx.get(gameRef);
-            if (!snap.exists()) return;
-            const cur = snap.data();
-            const nextPO = (cur.playerOrder || []).filter(id => id !== myId);
-            const nextNames = { ...(cur.playerNames || {}) };
-            const nextHands = { ...(cur.hands || {}) };
-            const nextLS    = { ...(cur.lastSeen || {}) };
-            const nextFin   = (cur.finished || []).filter(id => id !== myId);
-            delete nextNames[myId];
-            delete nextHands[myId];
-            delete nextLS[myId];
-            tx.update(gameRef, {
-                playerOrder: nextPO,
-                playerNames: nextNames,
-                hands: serializeHands(nextHands),
-                finished: nextFin,
-                lastSeen: nextLS
-            });
-        });
-    } catch (e) { console.warn('leave failed', e); }
-
-    stopPolling();
-    inRoom = false;
-    gameState = null;
-    showScreen('join');
-}
-
-// ─────────────────────────────────────────────
-//  Polling
-// ─────────────────────────────────────────────
-function startPolling() {
-    stopPolling();
-    pollTimer = setInterval(refreshState, 2500);
-}
-function stopPolling() {
-    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-}
-
-async function refreshState() {
-    if (!myId || !gameRef) return;
-    try {
-        // heartbeat
-        await updateDoc(gameRef, { [`lastSeen.${myId}`]: Date.now() }).catch(() => {});
-
-        const snap = await getDoc(gameRef);
-        if (!snap.exists()) return;
-        gameState = snap.data();
-        render();
-    } catch (e) {
-        console.warn('refresh error', e);
-    }
-}
-
-// ─────────────────────────────────────────────
-//  Start game (host)
-// ─────────────────────────────────────────────
-async function startGame() {
-    if (!gameRef || !gameState) return;
-    const po = gameState.playerOrder || [];
-    if (po[0] !== myId) { showToast('ホストのみ開始できます'); return; }
-    if (po.length < 2) { showToast('2人以上必要です'); return; }
-
-    try {
-        await runTransaction(db, async tx => {
-            const snap = await tx.get(gameRef);
-            if (!snap.exists()) return;
-            const cur = snap.data();
-            const players = cur.playerOrder || [];
-            const deck  = shuffleDeck(buildDeck());
-            const dealt = dealHands(deck, players.length);
-            const handsObj = {};
-            players.forEach((p, i) => handsObj[p] = dealt[i]);
-
-            tx.update(gameRef, {
-                hands: serializeHands(handsObj),
-                fieldCards: [],
-                turnIndex: 0,
-                passCount: 0,
-                isBind: false,
-                revolution: false,
-                finished: [],
-                lastPlayedBy: null,
-                lastAction: 'ゲーム開始！カードが配られました'
-            });
-        });
-        await refreshState();
-    } catch (e) {
-        showToast('開始失敗: ' + e.message);
-    }
-}
-
-// ─────────────────────────────────────────────
-//  Play cards
-// ─────────────────────────────────────────────
-async function playCards() {
-    if (!gameState || !myId) return;
-    const myHand = (gameState.hands || {})[myId] || [];
-    const selected = myHand.filter(c => selectedIds.has(c.id));
-    if (selected.length === 0) { showToast('カードを選択してください'); return; }
-
-    // Pre-check locally
-    const curField = gameState.fieldCards || [];
-    if (!isValidPlay(curField, selected, !!gameState.isBind, !!gameState.revolution)) {
-        showToast('その出し方は無効です');
-        return;
-    }
-
-    try {
-        await runTransaction(db, async tx => {
-            const snap = await tx.get(gameRef);
-            if (!snap.exists()) throw new Error('ゲームが見つかりません');
-            const cur = snap.data();
-
-            const playerOrder = cur.playerOrder || [];
-            const turnIdx     = cur.turnIndex   || 0;
-            if (playerOrder[turnIdx] !== myId) throw new Error('あなたのターンではありません');
-
-            // Re-validate against latest state
-            const field      = cur.fieldCards || [];
-            const revolution = !!cur.revolution;
-            const curBind    = !!cur.isBind;
-            if (!isValidPlay(field, selected, curBind, revolution)) {
-                throw new Error('無効なプレイです');
-            }
-
-            // ── Clone hands & remove played cards ──
-            const nextHands = {};
-            for (const [pid, h] of Object.entries(cur.hands || {})) {
-                nextHands[pid] = Array.isArray(h) ? h.slice() : [];
-            }
-            nextHands[myId] = nextHands[myId].filter(c => !selected.some(s => s.id === c.id));
-
-            // ── 8切り ──
-            const eightCut = isEightCut(selected);
-
-            // ── 革命 ──
-            let nextRevolution = revolution;
-            if (isRevolution(selected)) nextRevolution = !nextRevolution;
-
-            // ── Field ──
-            const nextField = eightCut ? [] : serializeCards(selected);
-
-            // ── 縛り ──
-            let nextBind = false;
-            if (!eightCut && field.length > 0 && field.length === selected.length) {
-                nextBind = curBind || suitSetsMatch(field, selected);
-            }
-
-            // ── Finished? ──
-            const finished = Array.isArray(cur.finished) ? [...cur.finished] : [];
-            if (nextHands[myId].length === 0 && !finished.includes(myId)) {
-                finished.push(myId);
-            }
-
-            // ── Next turn ──
-            let nextTurn;
-            if (eightCut && nextHands[myId].length > 0) {
-                nextTurn = turnIdx;                          // 8切り → same player
-            } else {
-                nextTurn = findNextActive(playerOrder, nextHands, turnIdx + 1);
-            }
-            if (nextTurn < 0) nextTurn = 0;
-
-            // ── Action message ──
-            const cardStr = selected.map(c => c.suit + formatNumber(c.number)).join(' ');
-            let msg = `${displayName(cur, myId)} が ${cardStr} を出した`;
-            if (eightCut)              msg += '（8切り！）';
-            if (isRevolution(selected)) msg += '（革命！）';
-            if (nextHands[myId].length === 0) msg += '（上がり！）';
-
-            tx.update(gameRef, {
-                fieldCards:    nextField,
-                hands:         serializeHands(nextHands),
-                turnIndex:     nextTurn,
-                passCount:     0,
-                isBind:        nextBind,
-                revolution:    nextRevolution,
-                finished,
-                lastPlayedBy:  myId,
-                lastAction:    msg
-            });
-        });
-
-        selectedIds.clear();
-        await refreshState();
-    } catch (e) {
-        showToast('出牌失敗: ' + e.message);
-    }
-}
-
-// ─────────────────────────────────────────────
-//  Pass
-// ─────────────────────────────────────────────
-async function passAction() {
-    if (!gameState || !myId) return;
-
-    try {
-        await runTransaction(db, async tx => {
-            const snap = await tx.get(gameRef);
-            if (!snap.exists()) throw new Error('ゲームが見つかりません');
-            const cur = snap.data();
-
-            const playerOrder = cur.playerOrder || [];
-            const turnIdx     = cur.turnIndex   || 0;
-            if (playerOrder[turnIdx] !== myId) throw new Error('あなたのターンではありません');
-
-            const hands = cur.hands || {};
-            const activePlayers = getActivePlayers(playerOrder, hands);
-            const nextPassCount = (cur.passCount || 0) + 1;
-
-            // If lastPlayedBy is still active, threshold = activePlayers − 1,
-            // otherwise ALL remaining active players must pass.
-            const lp = cur.lastPlayedBy;
-            const lastActive = lp && hands[lp] && hands[lp].length > 0;
-            const threshold  = lastActive ? activePlayers.length - 1 : activePlayers.length;
-            const shouldClear = nextPassCount >= threshold;
-
-            const actionMsg = `${displayName(cur, myId)} がパスした`;
-
-            if (shouldClear) {
-                let nextTurn;
-                if (lastActive) {
-                    nextTurn = playerOrder.indexOf(lp);
-                } else {
-                    const fromIdx = lp ? playerOrder.indexOf(lp) : turnIdx;
-                    nextTurn = findNextActive(playerOrder, hands, (fromIdx >= 0 ? fromIdx : 0) + 1);
-                }
-                if (nextTurn < 0) nextTurn = 0;
-
-                tx.update(gameRef, {
-                    fieldCards:   [],
-                    passCount:    0,
-                    isBind:       false,
-                    turnIndex:    nextTurn,
-                    lastPlayedBy: null,
-                    lastAction:   actionMsg + ' → 場が流れました'
                 });
-            } else {
-                let nextTurn = findNextActive(playerOrder, hands, turnIdx + 1);
-                if (nextTurn < 0) nextTurn = 0;
-
-                tx.update(gameRef, {
-                    passCount:  nextPassCount,
-                    turnIndex:  nextTurn,
-                    lastAction: actionMsg
-                });
+                await refreshState();
+            } catch (e) {
+                showToast('開始失敗: ' + e.message);
             }
-        });
+        }
 
-        selectedIds.clear();
-        await refreshState();
-    } catch (e) {
-        showToast('パス失敗: ' + e.message);
-    }
-}
+        // ─────────────────────────────────────────────
+        //  Play cards
+        // ─────────────────────────────────────────────
+        async function playCards() {
+            if (!gameState || !myId) return;
+            const myHand = (gameState.hands || {})[myId] || [];
+            const selected = myHand.filter(c => selectedIds.has(c.id));
+            if (selected.length === 0) { showToast('カードを選択してください'); return; }
 
-// ─────────────────────────────────────────────
-//  Rendering
-// ─────────────────────────────────────────────
-function render() {
-    if (!gameState || !inRoom) return;
-    const phase = getPhase(gameState);
+            // Pre-check locally
+            const curField = gameState.fieldCards || [];
+            if (!isValidPlay(curField, selected, !!gameState.isBind, !!gameState.revolution)) {
+                showToast('その出し方は無効です');
+                return;
+            }
 
-    if (phase === 'lobby') {
-        showScreen('lobby');
-        renderLobby();
-        el.gameoverOverlay.classList.remove('visible');
-    } else {
-        showScreen('game');
-        renderGame();
-        el.gameoverOverlay.classList.toggle('visible', phase === 'gameover');
-        if (phase === 'gameover') renderGameOver();
-    }
-}
+            try {
+                await runTransaction(db, async tx => {
+                    const snap = await tx.get(gameRef);
+                    if (!snap.exists()) throw new Error('ゲームが見つかりません');
+                    const cur = snap.data();
 
-function renderLobby() {
-    const po = gameState.playerOrder || [];
-    el.lobbyRoomLabel.textContent = roomId;
+                    const playerOrder = cur.playerOrder || [];
+                    const turnIdx = cur.turnIndex || 0;
+                    if (playerOrder[turnIdx] !== myId) throw new Error('あなたのターンではありません');
 
-    el.playerList.innerHTML = po.map((p, i) => {
-        const name   = displayName(gameState, p);
-        const isMe   = p === myId;
-        const isHost = i === 0;
-        return `<div class="player-item ${isMe ? 'is-me' : ''}">
+                    // Re-validate against latest state
+                    const field = cur.fieldCards || [];
+                    const revolution = !!cur.revolution;
+                    const curBind = !!cur.isBind;
+                    if (!isValidPlay(field, selected, curBind, revolution)) {
+                        throw new Error('無効なプレイです');
+                    }
+
+                    // ── Clone hands & remove played cards ──
+                    const nextHands = {};
+                    for (const [pid, h] of Object.entries(cur.hands || {})) {
+                        nextHands[pid] = Array.isArray(h) ? h.slice() : [];
+                    }
+                    nextHands[myId] = nextHands[myId].filter(c => !selected.some(s => s.id === c.id));
+
+                    // ── 8切り ──
+                    const eightCut = isEightCut(selected);
+
+                    // ── 革命 ──
+                    let nextRevolution = revolution;
+                    if (isRevolution(selected)) nextRevolution = !nextRevolution;
+
+                    // ── Field ──
+                    const nextField = eightCut ? [] : serializeCards(selected);
+
+                    // ── 縛り ──
+                    let nextBind = false;
+                    if (!eightCut && field.length > 0 && field.length === selected.length) {
+                        nextBind = curBind || suitSetsMatch(field, selected);
+                    }
+
+                    // ── Finished? ──
+                    const finished = Array.isArray(cur.finished) ? [...cur.finished] : [];
+                    if (nextHands[myId].length === 0 && !finished.includes(myId)) {
+                        finished.push(myId);
+                    }
+
+                    // ── Next turn ──
+                    let nextTurn;
+                    if (eightCut && nextHands[myId].length > 0) {
+                        nextTurn = turnIdx;                          // 8切り → same player
+                    } else {
+                        nextTurn = findNextActive(playerOrder, nextHands, turnIdx + 1);
+                    }
+                    if (nextTurn < 0) nextTurn = 0;
+
+                    // ── Action message ──
+                    const cardStr = selected.map(c => c.suit + formatNumber(c.number)).join(' ');
+                    let msg = `${displayName(cur, myId)} が ${cardStr} を出した`;
+                    if (eightCut) msg += '（8切り！）';
+                    if (isRevolution(selected)) msg += '（革命！）';
+                    if (nextHands[myId].length === 0) msg += '（上がり！）';
+
+                    tx.update(gameRef, {
+                        fieldCards: nextField,
+                        hands: serializeHands(nextHands),
+                        turnIndex: nextTurn,
+                        passCount: 0,
+                        isBind: nextBind,
+                        revolution: nextRevolution,
+                        finished,
+                        lastPlayedBy: myId,
+                        lastAction: msg
+                    });
+                });
+
+                selectedIds.clear();
+                await refreshState();
+            } catch (e) {
+                showToast('出牌失敗: ' + e.message);
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        //  Pass
+        // ─────────────────────────────────────────────
+        async function passAction() {
+            if (!gameState || !myId) return;
+
+            try {
+                await runTransaction(db, async tx => {
+                    const snap = await tx.get(gameRef);
+                    if (!snap.exists()) throw new Error('ゲームが見つかりません');
+                    const cur = snap.data();
+
+                    const playerOrder = cur.playerOrder || [];
+                    const turnIdx = cur.turnIndex || 0;
+                    if (playerOrder[turnIdx] !== myId) throw new Error('あなたのターンではありません');
+
+                    const hands = cur.hands || {};
+                    const activePlayers = getActivePlayers(playerOrder, hands);
+                    const nextPassCount = (cur.passCount || 0) + 1;
+
+                    // If lastPlayedBy is still active, threshold = activePlayers − 1,
+                    // otherwise ALL remaining active players must pass.
+                    const lp = cur.lastPlayedBy;
+                    const lastActive = lp && hands[lp] && hands[lp].length > 0;
+                    const threshold = lastActive ? activePlayers.length - 1 : activePlayers.length;
+                    const shouldClear = nextPassCount >= threshold;
+
+                    const actionMsg = `${displayName(cur, myId)} がパスした`;
+
+                    if (shouldClear) {
+                        let nextTurn;
+                        if (lastActive) {
+                            nextTurn = playerOrder.indexOf(lp);
+                        } else {
+                            const fromIdx = lp ? playerOrder.indexOf(lp) : turnIdx;
+                            nextTurn = findNextActive(playerOrder, hands, (fromIdx >= 0 ? fromIdx : 0) + 1);
+                        }
+                        if (nextTurn < 0) nextTurn = 0;
+
+                        tx.update(gameRef, {
+                            fieldCards: [],
+                            passCount: 0,
+                            isBind: false,
+                            turnIndex: nextTurn,
+                            lastPlayedBy: null,
+                            lastAction: actionMsg + ' → 場が流れました'
+                        });
+                    } else {
+                        let nextTurn = findNextActive(playerOrder, hands, turnIdx + 1);
+                        if (nextTurn < 0) nextTurn = 0;
+
+                        tx.update(gameRef, {
+                            passCount: nextPassCount,
+                            turnIndex: nextTurn,
+                            lastAction: actionMsg
+                        });
+                    }
+                });
+
+                selectedIds.clear();
+                await refreshState();
+            } catch (e) {
+                showToast('パス失敗: ' + e.message);
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        //  Rendering
+        // ─────────────────────────────────────────────
+        function render() {
+            if (!gameState || !inRoom) return;
+            const phase = getPhase(gameState);
+
+            if (phase === 'lobby') {
+                showScreen('lobby');
+                renderLobby();
+                el.gameoverOverlay.classList.remove('visible');
+            } else {
+                showScreen('game');
+                renderGame();
+                el.gameoverOverlay.classList.toggle('visible', phase === 'gameover');
+                if (phase === 'gameover') renderGameOver();
+            }
+        }
+
+        function renderLobby() {
+            const po = gameState.playerOrder || [];
+            el.lobbyRoomLabel.textContent = roomId;
+
+            el.playerList.innerHTML = po.map((p, i) => {
+                const name = displayName(gameState, p);
+                const isMe = p === myId;
+                const isHost = i === 0;
+                return `<div class="player-item ${isMe ? 'is-me' : ''}">
             ${isHost ? '<span class="host-crown">👑</span>' : ''}
             <span>${name}</span>
             ${isMe ? '<span class="you-tag">あなた</span>' : ''}
         </div>`;
-    }).join('') || '<div class="player-item">参加者がいません</div>';
+            }).join('') || '<div class="player-item">参加者がいません</div>';
 
-    const isHost = po[0] === myId;
-    el.startBtn.style.display = (isHost && po.length >= 2) ? 'block' : 'none';
-    el.lobbyHint.style.display = isHost
-        ? (po.length < 2 ? 'block' : 'none')
-        : 'block';
-    el.lobbyHint.textContent = isHost
-        ? '2人以上でゲーム開始できます'
-        : 'ホストがゲーム開始するのを待っています…';
-}
+            const isHost = po[0] === myId;
+            el.startBtn.style.display = (isHost && po.length >= 2) ? 'block' : 'none';
+            el.lobbyHint.style.display = isHost
+                ? (po.length < 2 ? 'block' : 'none')
+                : 'block';
+            el.lobbyHint.textContent = isHost
+                ? '2人以上でゲーム開始できます'
+                : 'ホストがゲーム開始するのを待っています…';
+        }
 
-function renderGame() {
-    const po        = gameState.playerOrder || [];
-    const hands     = gameState.hands || {};
-    const field     = gameState.fieldCards || [];
-    const turnIdx   = gameState.turnIndex || 0;
-    const revolution = !!gameState.revolution;
-    const isBind    = !!gameState.isBind;
-    const myHand    = hands[myId] || [];
-    const isMyTurn  = po[turnIdx] === myId && myHand.length > 0;
-    const phase     = getPhase(gameState);
-    const isOver    = phase === 'gameover';
+        function renderGame() {
+            const po = gameState.playerOrder || [];
+            const hands = gameState.hands || {};
+            const field = gameState.fieldCards || [];
+            const turnIdx = gameState.turnIndex || 0;
+            const revolution = !!gameState.revolution;
+            const isBind = !!gameState.isBind;
+            const myHand = hands[myId] || [];
+            const isMyTurn = po[turnIdx] === myId && myHand.length > 0;
+            const phase = getPhase(gameState);
+            const isOver = phase === 'gameover';
 
-    // ── Room badge ──
-    el.roomBadge.textContent = 'Room: ' + roomId;
+            // ── Room badge ──
+            el.roomBadge.textContent = 'Room: ' + roomId;
 
-    // ── Indicators ──
-    el.revBadge.classList.toggle('visible', revolution);
-    el.bindBadge.classList.toggle('visible', isBind);
+            // ── Indicators ──
+            el.revBadge.classList.toggle('visible', revolution);
+            el.bindBadge.classList.toggle('visible', isBind);
 
-    // ── Opponents ──
-    el.opponentsBar.innerHTML = po.filter(p => p !== myId).map(p => {
-        const name  = displayName(gameState, p);
-        const cnt   = (hands[p] || []).length;
-        const isTurn = po[turnIdx] === p;
-        const done   = cnt === 0;
-        return `<div class="opponent-chip ${isTurn ? 'active-turn' : ''} ${done ? 'is-finished' : ''}">
+            // ── Opponents ──
+            el.opponentsBar.innerHTML = po.filter(p => p !== myId).map(p => {
+                const name = displayName(gameState, p);
+                const cnt = (hands[p] || []).length;
+                const isTurn = po[turnIdx] === p;
+                const done = cnt === 0;
+                return `<div class="opponent-chip ${isTurn ? 'active-turn' : ''} ${done ? 'is-finished' : ''}">
             <span class="opponent-name">${name}</span>
             <span class="opponent-count">${done ? '上がり' : cnt + '枚'}</span>
         </div>`;
-    }).join('');
+            }).join('');
 
-    // ── Field ──
-    el.fieldArea.innerHTML = '';
-    if (field.length > 0) {
-        field.forEach(c => el.fieldArea.appendChild(makeCard(c, 'field-card')));
-    } else {
-        el.fieldArea.innerHTML = '<span class="field-empty">場にカードはありません</span>';
-    }
+            // ── Field ──
+            el.fieldArea.innerHTML = '';
+            if (field.length > 0) {
+                field.forEach(c => el.fieldArea.appendChild(makeCard(c, 'field-card')));
+            } else {
+                el.fieldArea.innerHTML = '<span class="field-empty">場にカードはありません</span>';
+            }
 
-    // ── Status ──
-    if (isOver) {
-        el.statusText.textContent = 'ゲーム終了！';
-        el.statusText.className = 'status-text';
-    } else if (isMyTurn) {
-        el.statusText.textContent = 'あなたの番です！';
-        el.statusText.className = 'status-text my-turn';
-    } else {
-        const cp = po[turnIdx];
-        el.statusText.textContent = `${displayName(gameState, cp)} のターン`;
-        el.statusText.className = 'status-text';
-    }
-    el.logText.textContent = gameState.lastAction || '';
+            // ── Status ──
+            if (isOver) {
+                el.statusText.textContent = 'ゲーム終了！';
+                el.statusText.className = 'status-text';
+            } else if (isMyTurn) {
+                el.statusText.textContent = 'あなたの番です！';
+                el.statusText.className = 'status-text my-turn';
+            } else {
+                const cp = po[turnIdx];
+                el.statusText.textContent = `${displayName(gameState, cp)} のターン`;
+                el.statusText.className = 'status-text';
+            }
+            el.logText.textContent = gameState.lastAction || '';
 
-    // ── Controls ──
-    el.playBtn.disabled = !isMyTurn || isOver;
-    el.passBtn.disabled = !isMyTurn || isOver || field.length === 0;
+            // ── Controls ──
+            el.playBtn.disabled = !isMyTurn || isOver;
+            el.passBtn.disabled = !isMyTurn || isOver || field.length === 0;
 
-    // ── Hand ──
-    el.myHand.innerHTML = '';
-    const sorted = sortCards(myHand, revolution);
-    sorted.forEach(c => {
-        const card = makeCard(c, 'hand-card');
-        if (selectedIds.has(c.id)) card.classList.add('selected');
-        card.addEventListener('click', () => {
-            if (isOver) return;
-            selectedIds.has(c.id) ? selectedIds.delete(c.id) : selectedIds.add(c.id);
-            render();
-        });
-        el.myHand.appendChild(card);
-    });
-    el.handCount.textContent = myHand.length;
-}
+            // ── Hand ──
+            el.myHand.innerHTML = '';
+            const sorted = sortCards(myHand, revolution);
+            sorted.forEach(c => {
+                const card = makeCard(c, 'hand-card');
+                if (selectedIds.has(c.id)) card.classList.add('selected');
+                card.addEventListener('click', () => {
+                    if (isOver) return;
+                    selectedIds.has(c.id) ? selectedIds.delete(c.id) : selectedIds.add(c.id);
+                    render();
+                });
+                el.myHand.appendChild(card);
+            });
+            el.handCount.textContent = myHand.length;
+        }
 
-function renderGameOver() {
-    const po       = gameState.playerOrder || [];
-    const hands    = gameState.hands || {};
-    const finished = gameState.finished || [];
-    const active   = po.filter(p => hands[p] && hands[p].length > 0);
-    const rankings = [...finished, ...active];
-    const labels   = rankLabels(po.length);
-    const posClasses = ['gold', 'silver', 'bronze', 'other', 'other'];
+        function renderGameOver() {
+            const po = gameState.playerOrder || [];
+            const hands = gameState.hands || {};
+            const finished = gameState.finished || [];
+            const active = po.filter(p => hands[p] && hands[p].length > 0);
+            const rankings = [...finished, ...active];
+            const labels = rankLabels(po.length);
+            const posClasses = ['gold', 'silver', 'bronze', 'other', 'other'];
 
-    el.rankings.innerHTML = rankings.map((p, i) => {
-        const name = displayName(gameState, p);
-        const isMe = p === myId;
-        return `<div class="rank-item ${isMe ? 'is-me' : ''}">
+            el.rankings.innerHTML = rankings.map((p, i) => {
+                const name = displayName(gameState, p);
+                const isMe = p === myId;
+                return `<div class="rank-item ${isMe ? 'is-me' : ''}">
             <div class="rank-position ${posClasses[i] || 'other'}">${i + 1}</div>
             <div class="rank-info">
                 <div class="rank-name">${name}${isMe ? ' (あなた)' : ''}</div>
                 <div class="rank-label">${labels[i] || ''}</div>
             </div>
         </div>`;
-    }).join('');
+            }).join('');
 
-    const isHost = po[0] === myId;
-    el.newgameBtn.style.display  = isHost ? 'block' : 'none';
-    el.gameoverHint.textContent  = isHost ? '' : 'ホストが新しいゲームを開始できます';
-    el.gameoverHint.style.display = isHost ? 'none' : 'block';
-}
+            const isHost = po[0] === myId;
+            el.newgameBtn.style.display = isHost ? 'block' : 'none';
+            el.gameoverHint.textContent = isHost ? '' : 'ホストが新しいゲームを開始できます';
+            el.gameoverHint.style.display = isHost ? 'none' : 'block';
+        }
 
-function rankLabels(count) {
-    if (count === 2) return ['大富豪', '大貧民'];
-    if (count === 3) return ['大富豪', '平民', '大貧民'];
-    return ['大富豪', '富豪', '貧民', '大貧民'].slice(0, count);
-}
+        function rankLabels(count) {
+            if (count === 2) return ['大富豪', '大貧民'];
+            if (count === 3) return ['大富豪', '平民', '大貧民'];
+            return ['大富豪', '富豪', '貧民', '大貧民'].slice(0, count);
+        }
 
-// ─────────────────────────────────────────────
-//  Card DOM builder
-// ─────────────────────────────────────────────
-function makeCard(c, extraClass = '') {
-    const div = document.createElement('div');
-    const red = isRedSuit(c.suit);
-    div.className = `card ${red ? 'suit-red' : 'suit-black'} ${extraClass}`;
-    const lbl = formatNumber(c.number);
-    div.innerHTML = `
+        // ─────────────────────────────────────────────
+        //  Card DOM builder
+        // ─────────────────────────────────────────────
+        function makeCard(c, extraClass = '') {
+            const div = document.createElement('div');
+            const red = isRedSuit(c.suit);
+            div.className = `card ${red ? 'suit-red' : 'suit-black'} ${extraClass}`;
+            const lbl = formatNumber(c.number);
+            div.innerHTML = `
         <div class="card-corner top-left">${lbl}<br>${c.suit}</div>
         <div class="card-center">${c.suit}</div>
         <div class="card-corner bottom-right">${lbl}<br>${c.suit}</div>`;
-    return div;
-}
+            return div;
+        }
 
-// ─────────────────────────────────────────────
-//  Event wiring
-// ─────────────────────────────────────────────
-el.joinBtn.addEventListener('click', joinRoom);
-el.startBtn.addEventListener('click', startGame);
-el.playBtn.addEventListener('click', playCards);
-el.passBtn.addEventListener('click', passAction);
-el.newgameBtn.addEventListener('click', startGame);
-el.leaveLobbyBtn.addEventListener('click', leaveRoom);
+        // ─────────────────────────────────────────────
+        //  Event wiring
+        // ─────────────────────────────────────────────
+        el.joinBtn.addEventListener('click', joinRoom);
+        el.startBtn.addEventListener('click', startGame);
+        el.playBtn.addEventListener('click', playCards);
+        el.passBtn.addEventListener('click', passAction);
+        el.newgameBtn.addEventListener('click', startGame);
+        el.leaveLobbyBtn.addEventListener('click', leaveRoom);
 
-// Enter key in inputs → join
-el.nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
-el.roomInput.addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
-</script>
+        // Enter key in inputs → join
+        el.nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
+        el.roomInput.addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
+    </script>
 </body>
+
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
