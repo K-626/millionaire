@@ -882,7 +882,8 @@
             buildDeck, shuffleDeck, dealHands,
             cardRank, sortCards, formatNumber, isRedSuit,
             allSameNumber, isEightCut, isRevolution,
-            playClearsField, suitSetsMatch, isValidPlay
+            playClearsField, suitSetsMatch, isValidPlay,
+            isQuestion, isBabanuki, isOneStar, hasMiwaLock as isMiwaLock
         } from './game.js';
 
         // ─────────────────────────────────────────────
@@ -1003,6 +1004,42 @@
 
         function getActivePlayers(playerOrder, hands) {
             return (playerOrder || []).filter(p => hands && hands[p] && hands[p].length > 0);
+        }
+
+        function parseCardLabel(value) {
+            const text = String(value || '').trim().toUpperCase();
+            if (text === 'A') return 1;
+            if (text === 'J') return 11;
+            if (text === 'Q') return 12;
+            if (text === 'K') return 13;
+            if (text === '2') return 2;
+            const n = Number(text);
+            if (!Number.isNaN(n)) return n;
+            return null;
+        }
+
+        function getRandomCard(cards) {
+            if (!cards || cards.length === 0) return null;
+            return cards[Math.floor(Math.random() * cards.length)];
+        }
+
+        function pickPlayerTarget(state, playerOrder, currentPlayerId) {
+            const options = playerOrder.filter(pid => pid !== currentPlayerId);
+            if (options.length === 0) return null;
+            const promptText = `対象を選択してください: ${options.map((pid, index) => `${index + 1}. ${displayName(state, pid)}`).join(' / ')}`;
+            const choice = window.prompt(promptText, '1');
+            const idx = Number(choice) - 1;
+            return options[idx] || null;
+        }
+
+        function chooseGuessNumber() {
+            const guess = window.prompt('言う数字を入力してください（例: A, 7, J, Q, K, 2）', 'A');
+            const parsed = parseCardLabel(guess);
+            if (parsed === null) {
+                showToast('数字の入力が正しくありません');
+                return null;
+            }
+            return parsed;
         }
 
         // ─────────────────────────────────────────────
@@ -1226,42 +1263,100 @@
                     }
                     nextHands[myId] = nextHands[myId].filter(c => !selected.some(s => s.id === c.id));
 
-                    // ── 8切り ──
                     const eightCut = isEightCut(selected);
+                    const specialQuestion = isQuestion(selected);
+                    const specialBabanuki = isBabanuki(selected);
+                    const specialOneStar = isOneStar(selected);
+                    const specialAction = specialQuestion || specialBabanuki || specialOneStar;
 
-                    // ── 革命 ──
                     let nextRevolution = revolution;
-                    if (isRevolution(selected)) nextRevolution = !nextRevolution;
+                    if (!specialAction && isRevolution(selected)) nextRevolution = !nextRevolution;
 
-                    // ── Field ──
-                    const nextField = eightCut ? [] : serializeCards(selected);
-
-                    // ── 縛り ──
+                    let nextField = [];
                     let nextBind = false;
-                    if (!eightCut && field.length > 0 && field.length === selected.length) {
-                        nextBind = curBind || suitSetsMatch(field, selected);
+                    if (!specialAction) {
+                        nextField = eightCut ? [] : serializeCards(selected);
+                        if (!eightCut && field.length > 0 && field.length === selected.length) {
+                            nextBind = curBind || suitSetsMatch(field, selected);
+                        }
                     }
 
-                    // ── Finished? ──
                     const finished = Array.isArray(cur.finished) ? [...cur.finished] : [];
                     if (nextHands[myId].length === 0 && !finished.includes(myId)) {
                         finished.push(myId);
                     }
 
-                    // ── Next turn ──
                     let nextTurn;
                     if (eightCut && nextHands[myId].length > 0) {
-                        nextTurn = turnIdx;                          // 8切り → same player
+                        nextTurn = turnIdx;
                     } else {
                         nextTurn = findNextActive(playerOrder, nextHands, turnIdx + 1);
                     }
                     if (nextTurn < 0) nextTurn = 0;
 
-                    // ── Action message ──
                     const cardStr = selected.map(c => c.suit + formatNumber(c.number)).join(' ');
                     let msg = `${displayName(cur, myId)} が ${cardStr} を出した`;
-                    if (eightCut) msg += '（8切り！）';
-                    if (isRevolution(selected)) msg += '（革命！）';
+
+                    if (specialQuestion) {
+                        for (const _ of selected) {
+                            const target = pickPlayerTarget(cur, playerOrder, myId);
+                            const guess = chooseGuessNumber();
+                            if (!target || guess === null) throw new Error('Questionをキャンセルしました');
+                            const targetHand = nextHands[target] || [];
+                            if (isMiwaLock(targetHand)) {
+                                msg += '（Question不発：美和ロック）';
+                            } else {
+                                const match = targetHand.filter(c => c.number === guess);
+                                if (match.length > 0) {
+                                    const stolen = getRandomCard(match);
+                                    nextHands[target] = targetHand.filter(c => c.id !== stolen.id);
+                                    nextHands[myId].push(stolen);
+                                    msg += `（Question: ${displayName(cur, target)}に${formatNumber(guess)}を要求し、1枚渡された）`;
+                                } else {
+                                    msg += `（Question: ${displayName(cur, target)}は${formatNumber(guess)}を持っていません）`;
+                                }
+                            }
+                        }
+                        msg += '（Question）';
+                    } else if (specialBabanuki) {
+                        for (const _ of selected) {
+                            const target = pickPlayerTarget(cur, playerOrder, myId);
+                            if (!target) throw new Error('ババ抜きをキャンセルしました');
+                            const targetHand = nextHands[target] || [];
+                            if (isMiwaLock(targetHand)) {
+                                msg += '（ババ抜き不発：美和ロック）';
+                            } else if (targetHand.length > 0) {
+                                const stolen = getRandomCard(targetHand);
+                                nextHands[target] = targetHand.filter(c => c.id !== stolen.id);
+                                nextHands[myId].push(stolen);
+                                msg += `（ババ抜き: ${displayName(cur, target)}から${stolen.suit + formatNumber(stolen.number)}を1枚奪った）`;
+                            } else {
+                                msg += `（ババ抜き: ${displayName(cur, target)}は手札がありません）`;
+                            }
+                        }
+                        msg += '（ババ抜き）';
+                    } else if (specialOneStar) {
+                        const target = pickPlayerTarget(cur, playerOrder, myId);
+                        const guess = chooseGuessNumber();
+                        if (!target || guess === null) throw new Error('一番星をキャンセルしました');
+                        const targetHand = nextHands[target] || [];
+                        if (isMiwaLock(targetHand)) {
+                            msg += '（一番星不発：美和ロック）';
+                        } else {
+                            const matches = targetHand.filter(c => c.number === guess);
+                            if (matches.length > 0) {
+                                nextHands[target] = targetHand.filter(c => c.number !== guess);
+                                nextHands[myId] = nextHands[myId].concat(matches);
+                                msg += `（一番星: ${displayName(cur, target)}から${formatNumber(guess)}を${matches.length}枚奪った）`;
+                            } else {
+                                msg += `（一番星: ${displayName(cur, target)}は${formatNumber(guess)}を持っていません）`;
+                            }
+                        }
+                    } else {
+                        if (eightCut) msg += '（8切り！）';
+                        if (isRevolution(selected)) msg += '（革命！）';
+                    }
+
                     if (nextHands[myId].length === 0) msg += '（上がり！）';
 
                     tx.update(gameRef, {
