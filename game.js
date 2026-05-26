@@ -1,4 +1,3 @@
-
 /**
  * Standard Daifugo (大富豪) - Game Logic Module
  *
@@ -78,6 +77,10 @@ export function isRedSuit(suit) {
     return suit === '♥' || suit === '♦';
 }
 
+export function normalizeNumber(number) {
+    return number === 2 ? 15 : number;
+}
+
 // ── Play classification ───────────────────────────────
 
 export function allSameNumber(cards) {
@@ -95,7 +98,63 @@ export function isRevolution(cards) {
     return cards.length >= 4 && allSameNumber(cards);
 }
 
-/** Does this play immediately clear the field? */
+export function isQuestion(cards) {
+    return cards.length >= 1 && cards.every(c => c.number === 12);
+}
+
+export function isBabanuki(cards) {
+    return cards.length >= 1 && cards.every(c => c.number === 9);
+}
+
+export function isOneStar(cards) {
+    return cards.length === 1 && cards[0].number === 1;
+}
+
+export function isSalvage(cards) {
+    return cards.length === 1 && cards[0].number === 2;
+}
+
+export function isTenThrow(cards) {
+    return cards.length >= 1 && cards.every(c => c.number === 10);
+}
+
+export function isSixLock(cards) {
+    return cards.length >= 1 && cards.every(c => c.number === 6);
+}
+
+export function isJackPlay(cards) {
+    return cards.length > 0 && cards.every(c => c.number === 11);
+}
+
+export function isSameSuitSequence(cards) {
+    if (!cards || cards.length < 2) return false;
+    const sorted = cards.slice().sort((a, b) => {
+        const na = normalizeNumber(a.number);
+        const nb = normalizeNumber(b.number);
+        return na - nb || a.suit.localeCompare(b.suit);
+    });
+    const suit = sorted[0].suit;
+    if (!sorted.every(c => c.suit === suit)) return false;
+
+    const values = sorted.map(c => normalizeNumber(c.number));
+    const diff = values[1] - values[0];
+    const arithmetic = values.slice(1).every((value, index) => value === values[index] + diff);
+    if (arithmetic) return true;
+
+    const ratios = values.slice(1).every((value, index) => value === values[index] * 2);
+    return ratios;
+}
+
+export function hasMiwaLock(cards) {
+    if (!cards || cards.length === 0) return false;
+    const suits = new Set(cards.map(c => c.suit));
+    return Array.from(suits).some(suit => {
+        const has3 = cards.some(c => c.suit === suit && c.number === 3);
+        const has8 = cards.some(c => c.suit === suit && c.number === 8);
+        return has3 && has8;
+    });
+}
+
 export function playClearsField(cards) {
     return isEightCut(cards);
 }
@@ -120,10 +179,11 @@ export function suitSetsMatch(cards1, cards2) {
  */
 export function isValidPlay(fieldCards, played, isBind = false, revolution = false) {
     if (!played || played.length === 0) return false;
-    if (!allSameNumber(played)) return false;
 
-    // 8切り is always legal
     if (isEightCut(played)) return true;
+    if (isQuestion(played) || isBabanuki(played) || isOneStar(played) || isSalvage(played) || isTenThrow(played) || isSixLock(played) || isJackPlay(played)) return true;
+    if (isSameSuitSequence(played)) return true;
+    if (!allSameNumber(played)) return false;
 
     // Free turn: any same-number group
     if (!fieldCards || fieldCards.length === 0) return true;
